@@ -1,0 +1,628 @@
+"use client";
+
+import React, { useMemo, useState } from "react";
+
+import Lottie from "lottie-react";
+import ladyAnimation from "../assets/lottie/Lady.json";
+import jsPDF from "jspdf";
+
+type Activity = { time?: string; title: string; notes?: string; cost?: number };
+type Day = { date: string; destination?: string; activities: Activity[] };
+type Itinerary = {
+  title: string;
+  currency?: string;
+  days: Day[];
+  tips?: string[];
+  summary?: string;
+  totalEstimatedCost?: number;
+};
+
+interface ItineraryFormData {
+  title: string;
+  startDate: string;
+  endDate: string;
+  destinations: string[];
+  dailyBudget?: number;
+  currency?: string;
+}
+
+interface ModelDay {
+  date?: string;
+  destination?: string;
+  morning?: string;
+  afternoon?: string;
+  evening?: string;
+  estCost?: number;
+  notes?: string;
+}
+
+interface ModelItinerary {
+  title?: string;
+  summary?: string;
+  currency?: string;
+  totalEstimatedCost?: number;
+  tips?: string[];
+  days?: ModelDay[];
+}
+
+async function createItinerary(
+  formData: ItineraryFormData
+): Promise<Itinerary> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const res = await fetch("/api/itinerary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!res.ok) {
+      const text = await res.text();
+      try {
+        const json = JSON.parse(text);
+        throw new Error(
+          json?.error ||
+            JSON.stringify(json) ||
+            `Request failed with ${res.status}`
+        );
+      } catch {
+        throw new Error(text || `Request failed with ${res.status}`);
+      }
+    }
+
+    const raw = (await res.json()) as any;
+    if (raw == null) throw new Error("Empty response from server.");
+    if (raw.error) throw new Error(raw.error);
+
+    const modelItin: ModelItinerary | undefined =
+      "itinerary" in raw
+        ? (raw.itinerary as ModelItinerary)
+        : (raw as ModelItinerary);
+
+    if (!modelItin) throw new Error("Invalid itinerary response from server.");
+
+    return mapModelItineraryToItinerary(modelItin, formData);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function mapModelItineraryToItinerary(
+  model: ModelItinerary,
+  formData: ItineraryFormData
+): Itinerary {
+  const days: Day[] = (model.days ?? []).map((d) => {
+    const activities: Activity[] = [];
+
+    if (d.morning)
+      activities.push({
+        time: "Morning",
+        title: d.morning,
+        notes: d.notes,
+        cost: typeof d.estCost === "number" ? d.estCost : undefined,
+      });
+    if (d.afternoon)
+      activities.push({
+        time: "Afternoon",
+        title: d.afternoon,
+        notes: d.notes,
+      });
+    if (d.evening)
+      activities.push({ time: "Evening", title: d.evening, notes: d.notes });
+
+    return {
+      date: d.date ?? "",
+      destination: d.destination,
+      activities,
+    };
+  });
+
+  return {
+    title: model.title ?? formData.title,
+    // keep the model currency internally but we'll display amounts in INR
+    currency: model.currency ?? formData.currency ?? "INR",
+    days,
+    tips: model.tips ?? [],
+    summary: model.summary,
+    totalEstimatedCost:
+      typeof model.totalEstimatedCost === "number"
+        ? model.totalEstimatedCost
+        : undefined,
+  };
+}
+
+export default function HomePage() {
+  // default currency set to INR as requested
+  const [title, setTitle] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [destinations, setDestinations] = useState("");
+  const [currency, setCurrency] = useState("INR");
+  const [dailyBudget, setDailyBudget] = useState<number | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
+  const [itinerary, setItinerary] = useState<Itinerary | null>(null);
+  const [error, setError] = useState<string>("");
+console.log("dsfg",itinerary)
+const downloadPdf = (itinerary: any) => {
+  if (!itinerary) return;
+
+  const pdf = new jsPDF({ unit: "pt", format: "a4" });
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const margin = 40;
+  let y = margin;
+
+  // Title
+  pdf.setFontSize(20);
+  pdf.text(itinerary.title || "Itinerary", pageWidth / 2, y, { align: "center" });
+  y += 30;
+
+  // Summary
+  if (itinerary.summary) {
+    pdf.setFontSize(12);
+    pdf.text("Summary:", margin, y);
+    y += 15;
+    const summaryLines = pdf.splitTextToSize(itinerary.summary, pageWidth - 2 * margin);
+    pdf.text(summaryLines, margin, y);
+    y += summaryLines.length * 15 + 10;
+  }
+
+  // Days
+  if (Array.isArray(itinerary.days)) {
+    itinerary.days.forEach((day: any, index: number) => {
+      pdf.setFontSize(14);
+      pdf.text(`Day ${index + 1} - ${day.date || ""}`, margin, y);
+      y += 20;
+
+      // Loop over all keys in day object
+      Object.keys(day).forEach((key) => {
+        if (key === "date") return; // already displayed
+        const value = day[key];
+        if (Array.isArray(value)) {
+          // For activities or any array
+          pdf.setFontSize(12);
+          pdf.text(`${capitalizeFirstLetter(key)}:`, margin, y);
+          y += 15;
+          value.forEach((item: any) => {
+            const lines = pdf.splitTextToSize(`• ${item}`, pageWidth - 2 * margin);
+            if (y + lines.length * 15 > pdf.internal.pageSize.getHeight() - margin) {
+              pdf.addPage();
+              y = margin;
+            }
+            pdf.text(lines, margin + 10, y);
+            y += lines.length * 15;
+          });
+        } else if (value) {
+          // For strings or numbers
+          const lines = pdf.splitTextToSize(`${capitalizeFirstLetter(key)}: ${value}`, pageWidth - 2 * margin);
+          if (y + lines.length * 15 > pdf.internal.pageSize.getHeight() - margin) {
+            pdf.addPage();
+            y = margin;
+          }
+          pdf.text(lines, margin, y);
+          y += lines.length * 15;
+        }
+      });
+
+      y += 10;
+    });
+  }
+
+  // Tips if present
+  if (Array.isArray(itinerary.tips) && itinerary.tips.length) {
+    pdf.setFontSize(14);
+    pdf.text("Tips:", margin, y);
+    y += 20;
+    itinerary.tips.forEach((tip: string) => {
+      const lines = pdf.splitTextToSize(`• ${tip}`, pageWidth - 2 * margin);
+      if (y + lines.length * 15 > pdf.internal.pageSize.getHeight() - margin) {
+        pdf.addPage();
+        y = margin;
+      }
+      pdf.text(lines, margin + 10, y);
+      y += lines.length * 15;
+    });
+    y += 10;
+  }
+
+  // Total Estimated Cost
+  if (itinerary.totalEstimatedCost) {
+    if (y + 20 > pdf.internal.pageSize.getHeight() - margin) pdf.addPage();
+    pdf.setFontSize(14);
+    pdf.text(
+      `Total Estimated Cost: ${itinerary.currency || ""} ${itinerary.totalEstimatedCost}`,
+      margin,
+      y
+    );
+  }
+
+  pdf.save(`${(itinerary.title || "itinerary").toLowerCase().replace(/\s+/g, "-")}.pdf`);
+};
+  const handleDownloadPdf = () => {
+    downloadPdf(itinerary);
+  };
+// Helper
+const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setItinerary(null);
+
+    if (!title.trim()) return setError("Please enter a title.");
+    if (!startDate || !endDate)
+      return setError("Please provide both start and end dates.");
+    if (new Date(startDate) > new Date(endDate))
+      return setError("Start date cannot be after end date.");
+
+    const dests = destinations
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (dests.length === 0)
+      return setError("Please add at least one destination.");
+
+    const payload: ItineraryFormData = {
+      title: title.trim(),
+      startDate,
+      endDate,
+      destinations: dests,
+      dailyBudget: typeof dailyBudget === "number" ? dailyBudget : undefined,
+      currency: currency?.trim() || "INR",
+    };
+
+    setLoading(true);
+    try {
+      const data = await createItinerary(payload);
+      setItinerary(data);
+      // scroll to result
+      setTimeout(() => {
+        const el = document.getElementById("itinerary-result");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create itinerary"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function resetAll() {
+    setTitle("My Trip");
+    setStartDate("");
+    setEndDate("");
+    setDestinations("Udaipur");
+    setCurrency("INR");
+    setDailyBudget(undefined);
+    setItinerary(null);
+    setError("");
+    setLoading(false);
+    // scroll to top of form
+    const el = document.querySelector("aside");
+    if (el)
+      (el as HTMLElement).scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+  }
+
+  function downloadJson() {
+    if (!itinerary) return;
+    const blob = new Blob([JSON.stringify(itinerary, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeTitle =
+      itinerary.title?.toLowerCase().replace(/\s+/g, "-") || "itinerary";
+    a.download = `${safeTitle}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  const computedTotalCost = useMemo(() => {
+    if (!itinerary?.days?.length) return 0;
+    return itinerary.days.reduce(
+      (sum, d) =>
+        sum +
+        d.activities.reduce(
+          (s, a) => s + (typeof a.cost === "number" ? a.cost : 0),
+          0
+        ),
+      0
+    );
+  }, [itinerary]);
+
+  const displayedTotal = itinerary?.totalEstimatedCost ?? computedTotalCost;
+
+  // Formatter forcing INR display
+  const inrFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+      }),
+    []
+  );
+
+  const formattedTotal = useMemo(() => {
+    try {
+      return inrFormatter.format(displayedTotal);
+    } catch {
+      return `₹${displayedTotal.toFixed(0)}`;
+    }
+  }, [displayedTotal, inrFormatter]);
+
+  return (
+    <main className="min-h-dvh bg-gradient-to-b from-fuchsia-100 via-white to-indigo-50 dark:from-violet-950 dark:via-neutral-950 dark:to-indigo-950 py-12">
+      <div className="mx-auto max-w-7xl px-4 md:px-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Form card */}
+          <aside className="col-span-1 rounded-3xl bg-white/90 p-6 shadow-md dark:bg-neutral-900 dark:border-neutral-800">
+            <h2 className="text-lg font-semibold">Create your itinerary</h2>
+            <p className="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+              Enter basics and get a day-by-day plan.
+            </p>
+
+            <form onSubmit={onSubmit} className="mt-4 space-y-3">
+              <input
+                className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-200"
+                placeholder="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  className="rounded-lg border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-200"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  required
+                />
+                <input
+                  className="rounded-lg border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-200"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  required
+                />
+              </div>
+
+              <input
+                className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-200"
+                placeholder="Destinations (comma-separated)"
+                value={destinations}
+                onChange={(e) => setDestinations(e.target.value)}
+                required
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  className="rounded-lg border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-200"
+                  placeholder="Currency (kept but displays in INR)"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                />
+                <input
+                  className="rounded-lg border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-200"
+                  type="number"
+                  placeholder="Daily budget (optional)"
+                  value={dailyBudget ?? ""}
+                  onChange={(e) =>
+                    setDailyBudget(
+                      e.target.value ? Number(e.target.value) : undefined
+                    )
+                  }
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 rounded-2xl bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:opacity-60"
+                >
+                  {loading ? "Generating..." : "Generate Itinerary"}
+                </button>
+                <button
+                  type="button"
+                  onClick={resetAll}
+                  className="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm"
+                >
+                  Reset
+                </button>
+              </div>
+
+              {error && (
+                <div className="mt-2 rounded-md bg-red-50 p-2 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+
+              {/* <div className="mt-4 rounded-lg border border-dashed border-gray-100 bg-gray-50 p-3 text-xs text-gray-600 dark:bg-neutral-800/60 dark:border-neutral-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    Timeout: <strong>30s</strong>
+                  </div>
+                  <div>
+                    Model: <strong>gemini-2.5-flash</strong>
+                  </div>
+                </div>
+              </div> */}
+            </form>
+          </aside>
+
+          {/* Result area */}
+          <main id="itinerary-result" className="col-span-1 lg:col-span-2">
+            {!itinerary && (
+              <div className="rounded-3xl border border-dashed border-gray-200 bg-white/60 p-8 text-center shadow dark:bg-neutral-900 dark:border-neutral-800">
+                <h3 className="mb-2 text-lg font-semibold">
+                  Your itinerary will appear here
+                </h3>
+                <p className="mb-4 text-sm text-gray-600 dark:text-neutral-400">
+                  Generate to preview a polished day-by-day plan.
+                </p>
+                <div className="mx-auto w-72 h-72 opacity-90">
+                  <Lottie animationData={ladyAnimation} loop={true} />
+                </div>
+              </div>
+            )}
+
+            {itinerary && (
+              <article className="space-y-6">
+                {/* Header card */}
+                <div className="rounded-3xl bg-white p-6 shadow dark:bg-neutral-900 dark:border-neutral-800">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold">{itinerary.title}</h2>
+                      {itinerary.summary && (
+                        <p className="mt-2 text-sm text-gray-600 dark:text-neutral-400 max-w-prose">
+                          {itinerary.summary}
+                        </p>
+                      )}
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-gray-700 dark:text-neutral-300">
+                        <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-indigo-700">
+                          INR
+                        </div>
+                        {displayedTotal > 0 && (
+                          <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-green-700">
+                            Est. total: <strong>{formattedTotal}</strong>
+                          </div>
+                        )}
+                        <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-amber-700">
+                          {itinerary.days.length} days
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      <button
+                        onClick={handleDownloadPdf}
+                        className="inline-flex items-center gap-2 rounded-xl border border-indigo-300 bg-white px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50"
+                      >
+                        Download PDF
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Days timeline */}
+                <div className="space-y-4">
+                  {itinerary.days.map((day, i) => (
+                    <div
+                      key={day.date + i}
+                      className="rounded-2xl bg-white p-4 shadow-sm dark:bg-neutral-900 dark:border-neutral-800"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="rounded-md bg-indigo-50 px-3 py-2 text-indigo-700">
+                            <div className="text-sm font-semibold">
+                              {day.date
+                                ? new Date(day.date).toLocaleDateString(
+                                    undefined,
+                                    {
+                                      weekday: "short",
+                                      month: "short",
+                                      day: "numeric",
+                                    }
+                                  )
+                                : "Date"}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium">
+                              {day.destination || "Destination"}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-neutral-400">
+                              Day {i + 1}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-sm text-gray-600 dark:text-neutral-400">
+                          {formatDayCostINR(day)}
+                        </div>
+                      </div>
+
+                      <ul className="mt-4 space-y-3">
+                        {day.activities.map((a, idx) => (
+                          <li key={idx} className="flex gap-3">
+                            <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-indigo-500" />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                {a.time && (
+                                  <span className="rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                                    {a.time}
+                                  </span>
+                                )}
+                                <div className="font-medium">{a.title}</div>
+                                {typeof a.cost === "number" && (
+                                  <div className="ml-auto text-xs text-gray-600 dark:text-neutral-400">
+                                    {inrFormatter.format(a.cost)}
+                                  </div>
+                                )}
+                              </div>
+                              {a.notes && (
+                                <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
+                                  {a.notes}
+                                </p>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Tips */}
+                {itinerary.tips && itinerary.tips.length > 0 && (
+                  <div className="rounded-2xl bg-white p-4 shadow-sm dark:bg-neutral-900 dark:border-neutral-800">
+                    <h4 className="mb-2 text-base font-semibold">Tips</h4>
+                    <ul className="list-disc space-y-1 pl-5 text-sm text-gray-700 dark:text-neutral-300">
+                      {itinerary.tips.map((tip, j) => (
+                        <li key={j}>{tip}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </article>
+            )}
+          </main>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+/* ---------- small helpers ---------- */
+
+function formatDayCostINR(day: Day) {
+  const total = day.activities.reduce(
+    (s, a) => s + (typeof a.cost === "number" ? a.cost : 0),
+    0
+  );
+  if (total === 0) return "";
+  try {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(total);
+  } catch {
+    return `₹${total.toFixed(0)}`;
+  }
+}
