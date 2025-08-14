@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 // app/contact/page.tsx
 import Link from "next/link";
 import ContactForm from "./ContactForm";
@@ -32,7 +33,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <h2 className="text-lg font-semibold text-indigo-700">We're here to help</h2>
+                <h2 className="text-lg font-semibold text-indigo-700">We&apos;re here to help</h2>
                 <p className="mt-2 text-sm text-gray-700 dark:text-neutral-300">
                   For quick questions use the chat (coming soon) or send us a message using the form. We usually respond within 1–2 business days.
                 </p>

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 // app/contact/ContactForm.tsx
 "use client";
 

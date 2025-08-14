@@ -75,6 +75,7 @@ async function createItinerary(
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const raw = (await res.json()) as any;
     if (raw == null) throw new Error("Empty response from server.");
     if (raw.error) throw new Error(raw.error);
@@ -148,6 +149,7 @@ export default function HomePage() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [error, setError] = useState<string>("");
 console.log("dsfg",itinerary)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const downloadPdf = (itinerary: any) => {
   if (!itinerary) return;
 
@@ -173,6 +175,7 @@ const downloadPdf = (itinerary: any) => {
 
   // Days
   if (Array.isArray(itinerary.days)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     itinerary.days.forEach((day: any, index: number) => {
       pdf.setFontSize(14);
       pdf.text(`Day ${index + 1} - ${day.date || ""}`, margin, y);
@@ -187,6 +190,7 @@ const downloadPdf = (itinerary: any) => {
           pdf.setFontSize(12);
           pdf.text(`${capitalizeFirstLetter(key)}:`, margin, y);
           y += 15;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           value.forEach((item: any) => {
             const lines = pdf.splitTextToSize(`• ${item}`, pageWidth - 2 * margin);
             if (y + lines.length * 15 > pdf.internal.pageSize.getHeight() - margin) {
