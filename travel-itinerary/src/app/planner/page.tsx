@@ -148,110 +148,136 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [error, setError] = useState<string>("");
-console.log("dsfg",itinerary)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const downloadPdf = (itinerary: any) => {
-  if (!itinerary) return;
+  console.log("dsfg", itinerary);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const downloadPdf = (itinerary: any) => {
+    if (!itinerary) return;
 
-  const pdf = new jsPDF({ unit: "pt", format: "a4" });
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const margin = 40;
-  let y = margin;
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 40;
+    let y = margin;
 
-  // Title
-  pdf.setFontSize(20);
-  pdf.text(itinerary.title || "Itinerary", pageWidth / 2, y, { align: "center" });
-  y += 30;
+    // Title
+    pdf.setFontSize(20);
+    pdf.text(itinerary.title || "Itinerary", pageWidth / 2, y, {
+      align: "center",
+    });
+    y += 30;
 
-  // Summary
-  if (itinerary.summary) {
-    pdf.setFontSize(12);
-    pdf.text("Summary:", margin, y);
-    y += 15;
-    const summaryLines = pdf.splitTextToSize(itinerary.summary, pageWidth - 2 * margin);
-    pdf.text(summaryLines, margin, y);
-    y += summaryLines.length * 15 + 10;
-  }
+    // Summary
+    if (itinerary.summary) {
+      pdf.setFontSize(12);
+      pdf.text("Summary:", margin, y);
+      y += 15;
+      const summaryLines = pdf.splitTextToSize(
+        itinerary.summary,
+        pageWidth - 2 * margin
+      );
+      pdf.text(summaryLines, margin, y);
+      y += summaryLines.length * 15 + 10;
+    }
 
-  // Days
-  if (Array.isArray(itinerary.days)) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    itinerary.days.forEach((day: any, index: number) => {
-      pdf.setFontSize(14);
-      pdf.text(`Day ${index + 1} - ${day.date || ""}`, margin, y);
-      y += 20;
+    // Days
+    if (Array.isArray(itinerary.days)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      itinerary.days.forEach((day: any, index: number) => {
+        pdf.setFontSize(14);
+        pdf.text(`Day ${index + 1} - ${day.date || ""}`, margin, y);
+        y += 20;
 
-      // Loop over all keys in day object
-      Object.keys(day).forEach((key) => {
-        if (key === "date") return; // already displayed
-        const value = day[key];
-        if (Array.isArray(value)) {
-          // For activities or any array
-          pdf.setFontSize(12);
-          pdf.text(`${capitalizeFirstLetter(key)}:`, margin, y);
-          y += 15;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          value.forEach((item: any) => {
-            const lines = pdf.splitTextToSize(`• ${item}`, pageWidth - 2 * margin);
-            if (y + lines.length * 15 > pdf.internal.pageSize.getHeight() - margin) {
+        // Loop over all keys in day object
+        Object.keys(day).forEach((key) => {
+          if (key === "date") return; // already displayed
+          const value = day[key];
+          if (Array.isArray(value)) {
+            // For activities or any array
+            pdf.setFontSize(12);
+            pdf.text(`${capitalizeFirstLetter(key)}:`, margin, y);
+            y += 15;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            value.forEach((item: any) => {
+              const lines = pdf.splitTextToSize(
+                `• ${item}`,
+                pageWidth - 2 * margin
+              );
+              if (
+                y + lines.length * 15 >
+                pdf.internal.pageSize.getHeight() - margin
+              ) {
+                pdf.addPage();
+                y = margin;
+              }
+              pdf.text(lines, margin + 10, y);
+              y += lines.length * 15;
+            });
+          } else if (value) {
+            // For strings or numbers
+            const lines = pdf.splitTextToSize(
+              `${capitalizeFirstLetter(key)}: ${value}`,
+              pageWidth - 2 * margin
+            );
+            if (
+              y + lines.length * 15 >
+              pdf.internal.pageSize.getHeight() - margin
+            ) {
               pdf.addPage();
               y = margin;
             }
-            pdf.text(lines, margin + 10, y);
+            pdf.text(lines, margin, y);
             y += lines.length * 15;
-          });
-        } else if (value) {
-          // For strings or numbers
-          const lines = pdf.splitTextToSize(`${capitalizeFirstLetter(key)}: ${value}`, pageWidth - 2 * margin);
-          if (y + lines.length * 15 > pdf.internal.pageSize.getHeight() - margin) {
-            pdf.addPage();
-            y = margin;
           }
-          pdf.text(lines, margin, y);
-          y += lines.length * 15;
-        }
+        });
+
+        y += 10;
       });
+    }
 
+    // Tips if present
+    if (Array.isArray(itinerary.tips) && itinerary.tips.length) {
+      pdf.setFontSize(14);
+      pdf.text("Tips:", margin, y);
+      y += 20;
+      itinerary.tips.forEach((tip: string) => {
+        const lines = pdf.splitTextToSize(`• ${tip}`, pageWidth - 2 * margin);
+        if (
+          y + lines.length * 15 >
+          pdf.internal.pageSize.getHeight() - margin
+        ) {
+          pdf.addPage();
+          y = margin;
+        }
+        pdf.text(lines, margin + 10, y);
+        y += lines.length * 15;
+      });
       y += 10;
-    });
-  }
+    }
 
-  // Tips if present
-  if (Array.isArray(itinerary.tips) && itinerary.tips.length) {
-    pdf.setFontSize(14);
-    pdf.text("Tips:", margin, y);
-    y += 20;
-    itinerary.tips.forEach((tip: string) => {
-      const lines = pdf.splitTextToSize(`• ${tip}`, pageWidth - 2 * margin);
-      if (y + lines.length * 15 > pdf.internal.pageSize.getHeight() - margin) {
-        pdf.addPage();
-        y = margin;
-      }
-      pdf.text(lines, margin + 10, y);
-      y += lines.length * 15;
-    });
-    y += 10;
-  }
+    // Total Estimated Cost
+    if (itinerary.totalEstimatedCost) {
+      if (y + 20 > pdf.internal.pageSize.getHeight() - margin) pdf.addPage();
+      pdf.setFontSize(14);
+      pdf.text(
+        `Total Estimated Cost: ${itinerary.currency || ""} ${
+          itinerary.totalEstimatedCost
+        }`,
+        margin,
+        y
+      );
+    }
 
-  // Total Estimated Cost
-  if (itinerary.totalEstimatedCost) {
-    if (y + 20 > pdf.internal.pageSize.getHeight() - margin) pdf.addPage();
-    pdf.setFontSize(14);
-    pdf.text(
-      `Total Estimated Cost: ${itinerary.currency || ""} ${itinerary.totalEstimatedCost}`,
-      margin,
-      y
+    pdf.save(
+      `${(itinerary.title || "itinerary")
+        .toLowerCase()
+        .replace(/\s+/g, "-")}.pdf`
     );
-  }
-
-  pdf.save(`${(itinerary.title || "itinerary").toLowerCase().replace(/\s+/g, "-")}.pdf`);
-};
+  };
   const handleDownloadPdf = () => {
     downloadPdf(itinerary);
   };
-// Helper
-const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-
+  // Helper
+  const capitalizeFirstLetter = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -390,14 +416,14 @@ const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str
 
               <div className="grid grid-cols-2 gap-2">
                 <input
-                  className="rounded-lg border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-200"
+                  className="rounded-lg border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white [color-scheme:light]"
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   required
                 />
                 <input
-                  className="rounded-lg border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-200"
+                  className="rounded-lg border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white [color-scheme:light]"
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
@@ -444,7 +470,8 @@ const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str
                 <button
                   type="button"
                   onClick={resetAll}
-                  className="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm"
+                  className="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-800 
+             dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                 >
                   Reset
                 </button>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import logo from "../favicon.ico";
 import HeroSwiper from "../components/HeroSwiper";
 import ThemeToggle from "../components/ThemeToggle";
+
 export const metadata = {
   title: "GlobeTrail — AI Travel Itinerary Planner",
   description:
@@ -92,12 +93,12 @@ export default function LandingPage() {
               badge: "Temple Trails",
               desc: "Torii gates, tea houses, and tranquil gardens.",
             },
-            {
-              title: "Paris, France",
-              img: "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-              badge: "Café Culture",
-              desc: "Museums by day, Seine strolls by night.",
-            },
+            // {
+            //   title: "Paris, France",
+            //   img: "https://plus.unsplash.com/premium_photo-1661919210043-fd847a58522d?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            //   badge: "Café Culture",
+            //   desc: "Museums by day, Seine strolls by night.",
+            // },
             {
               title: "Cappadocia, Türkiye",
               img: "https://plus.unsplash.com/premium_photo-1661964146949-a35b9ae06f89?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",

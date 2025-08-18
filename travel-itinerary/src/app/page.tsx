@@ -5,7 +5,8 @@ import HeroSwiper from "./components/HeroSwiper";
 
 export const metadata = {
   title: "GlobeTrail — AI Travel Itinerary Planner",
-  description: "Plan unforgettable trips with AI. Colorful, fast, and delightful.",
+  description:
+    "Plan unforgettable trips with AI. Colorful, fast, and delightful.",
 };
 
 export default function LandingPage() {
@@ -14,10 +15,15 @@ export default function LandingPage() {
       <HeroSwiper />
 
       {/* Destinations Gallery */}
-      <section id="destinations" className="mx-auto max-w-7xl px-4 py-12 md:px-8">
+      <section
+        id="destinations"
+        className="mx-auto max-w-7xl px-4 py-12 md:px-8"
+      >
         <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Beautiful destinations</h2>
+            <h2 className="text-2xl font-bold tracking-tight">
+              Beautiful destinations
+            </h2>
             <p className="mt-1 text-sm text-gray-600 dark:text-neutral-300">
               Hand-picked places your itinerary can include—instantly.
             </p>
@@ -52,7 +58,7 @@ export default function LandingPage() {
             },
             {
               title: "Paris, France",
-              img: "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0",
+              img: "https://plus.unsplash.com/premium_photo-1661919210043-fd847a58522d?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
               badge: "Café Culture",
               desc: "Museums by day, Seine strolls by night.",
             },
@@ -91,7 +97,9 @@ export default function LandingPage() {
                   {card.desc}
                 </p>
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs text-indigo-600">Add to itinerary</span>
+                  <span className="text-xs text-indigo-600">
+                    Add to itinerary
+                  </span>
                   <Link
                     href="/planner"
                     className="rounded-lg bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-600"
@@ -109,22 +117,52 @@ export default function LandingPage() {
       <section id="why-book" className="mx-auto max-w-7xl px-4 py-14 md:px-8">
         <h2 className="text-2xl font-bold">Why Book With Us?</h2>
         <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
-          Experience travel planning like never before with GlobeTrail’s smart and seamless features.
+          Experience travel planning like never before with GlobeTrail’s smart
+          and seamless features.
         </p>
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { title: "AI-Powered Itineraries", icon: "🧠", desc: "Get personalized day-by-day plans created instantly by our advanced AI." },
-            { title: "Budget-Friendly Planning", icon: "💰", desc: "Stay within your budget with smart cost estimates and local deals." },
-            { title: "Hand-Picked Destinations", icon: "📍", desc: "Discover the best spots, from hidden gems to world-famous landmarks." },
-            { title: "Seamless Editing", icon: "✏️", desc: "Easily tweak and customize your trip details anytime." },
-            { title: "Multi-Device Access", icon: "📱", desc: "Plan on your laptop, check on your phone — anytime, anywhere." },
-            { title: "Export & Share", icon: "📤", desc: "Download your plan or share it with friends in one click." },
+            {
+              title: "AI-Powered Itineraries",
+              icon: "🧠",
+              desc: "Get personalized day-by-day plans created instantly by our advanced AI.",
+            },
+            {
+              title: "Budget-Friendly Planning",
+              icon: "💰",
+              desc: "Stay within your budget with smart cost estimates and local deals.",
+            },
+            {
+              title: "Hand-Picked Destinations",
+              icon: "📍",
+              desc: "Discover the best spots, from hidden gems to world-famous landmarks.",
+            },
+            {
+              title: "Seamless Editing",
+              icon: "✏️",
+              desc: "Easily tweak and customize your trip details anytime.",
+            },
+            {
+              title: "Multi-Device Access",
+              icon: "📱",
+              desc: "Plan on your laptop, check on your phone — anytime, anywhere.",
+            },
+            {
+              title: "Export & Share",
+              icon: "📤",
+              desc: "Download your plan or share it with friends in one click.",
+            },
           ].map((feature) => (
-            <div key={feature.title} className="group rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900">
+            <div
+              key={feature.title}
+              className="group rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
+            >
               <div className="mb-3 text-3xl">{feature.icon}</div>
               <h3 className="text-base font-semibold">{feature.title}</h3>
-              <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">{feature.desc}</p>
+              <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
+                {feature.desc}
+              </p>
             </div>
           ))}
         </div>
@@ -134,10 +172,17 @@ export default function LandingPage() {
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-8">
         <div className="relative overflow-hidden rounded-3xl border bg-indigo-500 p-8 text-white shadow-lg dark:border-neutral-800">
           <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
-          <h3 className="text-2xl font-bold">Ready to color your next adventure?</h3>
-          <p className="mt-1 text-sm opacity-90">Generate a day-by-day plan in seconds.</p>
+          <h3 className="text-2xl font-bold">
+            Ready to color your next adventure?
+          </h3>
+          <p className="mt-1 text-sm opacity-90">
+            Generate a day-by-day plan in seconds.
+          </p>
           <div className="mt-5">
-            <Link href="/planner" className="inline-block rounded-xl bg-white px-5 py-3 text-sm font-semibold text-indigo-600 shadow hover:bg-indigo-50">
+            <Link
+              href="/planner"
+              className="inline-block rounded-xl bg-white px-5 py-3 text-sm font-semibold text-indigo-600 shadow hover:bg-indigo-50"
+            >
               Plan my trip
             </Link>
           </div>
