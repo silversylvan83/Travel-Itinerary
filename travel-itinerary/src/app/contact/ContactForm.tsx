@@ -208,7 +208,8 @@ export default function ContactForm() {
               setForm({ name: "", email: "", subject: "", message: "" });
               setError(null);
             }}
-            className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+            className="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-800 
+             dark:border-gray-600 dark:bg-gray-800 dark:text-white"
           >
             Reset
           </button>

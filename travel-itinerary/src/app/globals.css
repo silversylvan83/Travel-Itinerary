@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* (Optional) Define a .dark variant that works with <html class="dark"> */
+@custom-variant dark (&:where(.dark, .dark *)); /* Enables `dark:` utilities too */
+
+/* 1) Core design tokens (Tailwind v4 reads from @theme) */
+@theme {
+  /* Font families */
+  --font-sans: var(--font-sans, ui-sans-serif), system-ui, -apple-system, "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+               "Segoe UI Emoji", "Segoe UI Symbol";
+
+  /* Brand/dark palette from your list */
+  --color-caribbean_current: #006466;
+  --color-midnight_green:   #065a60;
+  --color-midnight_green2:  #0b525b;
+  --color-midnight_green3:  #144552;
+  --color-charcoal:         #1b3a4b;
+  --color-prussian_blue:    #212f45;
+  --color-space_cadet:      #272640;
+  --color-dark_purple:      #312244;
+  --color-dark_purple2:     #3e1f47;
+  --color-palatinate:       #4d194d;
+
+  /* Semantic aliases (so you can use text-primary, bg-surface, etc.) */
+  --color-primary: var(--color-caribbean_current);
+  --color-surface: #ffffff;         /* light default */
+  --color-border:  #e5e7eb;         /* light gray-200 */
+  --color-foreground: #111827;      /* light gray-900 */
+
+  /* Gradient stops (LIGHT) */
+  --bg-start: #f5d0fe;  /* fuchsia-200-ish */
+  --bg-mid:   #ffffff;
+  --bg-end:   #e0e7ff;  /* indigo-100-ish */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* 2) Dark theme overrides (no Tailwind config needed) */
+:root.dark {
+  --color-surface: var(--color-space_cadet);
+  --color-border:  var(--color-midnight_green3);
+  --color-foreground: #e5e7eb;
+
+  /* Your requested dark gradient */
+  --bg-start: var(--color-caribbean_current);
+  --bg-mid:   var(--color-prussian_blue);
+  --bg-end:   var(--color-palatinate);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* 3) Utility helpers if you want subtle transparency on surfaces */
+.surface {
+  background-color: color-mix(in oklab, var(--color-surface) 92%, transparent);
 }

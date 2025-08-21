@@ -21,16 +21,17 @@ export default function LandingPage() {
       >
         <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">
+            {/* Strong contrast in light */}
+            <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">
               Beautiful destinations
             </h2>
-            <p className="mt-1 text-sm text-gray-600 dark:text-neutral-300">
+            <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
               Hand-picked places your itinerary can include—instantly.
             </p>
           </div>
           <Link
             href="/planner"
-            className="hidden rounded-xl border border-indigo-200 bg-white/70 px-4 py-2 text-sm hover:bg-white dark:border-neutral-700 dark:bg-neutral-900 md:block"
+            className="hidden rounded-xl border border-indigo-200 bg-white px-4 py-2 text-sm text-gray-900 hover:bg-white dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 md:block"
           >
             Generate my plan
           </Link>
@@ -77,7 +78,7 @@ export default function LandingPage() {
           ].map((card) => (
             <article
               key={card.title}
-              className="group overflow-hidden rounded-2xl border bg-white/80 shadow-sm transition hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
+              className="group overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
             >
               <div className="relative">
                 <Image
@@ -87,22 +88,24 @@ export default function LandingPage() {
                   height={800}
                   className="h-56 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                 />
-                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-fuchsia-700 shadow-sm backdrop-blur dark:bg-neutral-900/80">
+                <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-fuchsia-700 shadow-sm backdrop-blur dark:bg-neutral-900/80">
                   {card.badge}
                 </span>
               </div>
               <div className="p-4">
-                <h3 className="text-base font-semibold">{card.title}</h3>
-                <p className="mt-1 text-sm text-gray-600 dark:text-neutral-300">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-neutral-100">
+                  {card.title}
+                </h3>
+                <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
                   {card.desc}
                 </p>
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs text-indigo-600">
+                  <span className="text-xs text-indigo-700 dark:text-indigo-400">
                     Add to itinerary
                   </span>
                   <Link
                     href="/planner"
-                    className="rounded-lg bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-600"
+                    className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"
                   >
                     Plan here
                   </Link>
@@ -115,7 +118,9 @@ export default function LandingPage() {
 
       {/* Why Book With Us */}
       <section id="why-book" className="mx-auto max-w-7xl px-4 py-14 md:px-8">
-        <h2 className="text-2xl font-bold">Why Book With Us?</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-neutral-100">
+          Why Book With Us?
+        </h2>
         <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
           Experience travel planning like never before with GlobeTrail’s smart
           and seamless features.
@@ -159,7 +164,9 @@ export default function LandingPage() {
               className="group rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
             >
               <div className="mb-3 text-3xl">{feature.icon}</div>
-              <h3 className="text-base font-semibold">{feature.title}</h3>
+              <h3 className="text-base font-semibold text-gray-900 dark:text-neutral-100">
+                {feature.title}
+              </h3>
               <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
                 {feature.desc}
               </p>
@@ -170,18 +177,14 @@ export default function LandingPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-8">
-        <div className="relative overflow-hidden rounded-3xl border bg-indigo-500 p-8 text-white shadow-lg dark:border-neutral-800">
+        <div className="relative overflow-hidden rounded-3xl border bg-indigo-600 p-8 text-white shadow-lg dark:border-neutral-800">
           <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
-          <h3 className="text-2xl font-bold">
-            Ready to color your next adventure?
-          </h3>
-          <p className="mt-1 text-sm opacity-90">
-            Generate a day-by-day plan in seconds.
-          </p>
+          <h3 className="text-2xl font-bold">Ready to color your next adventure?</h3>
+          <p className="mt-1 text-sm opacity-90">Generate a day-by-day plan in seconds.</p>
           <div className="mt-5">
             <Link
               href="/planner"
-              className="inline-block rounded-xl bg-white px-5 py-3 text-sm font-semibold text-indigo-600 shadow hover:bg-indigo-50"
+              className="inline-block rounded-xl bg-white px-5 py-3 text-sm font-semibold text-indigo-700 shadow hover:bg-indigo-50"
             >
               Plan my trip
             </Link>

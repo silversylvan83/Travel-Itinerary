@@ -54,13 +54,26 @@ const FEATURES = [
 
 export default function FeaturesPage() {
   return (
-    <main className="min-h-dvh py-16">
+    <main
+      className="min-h-dvh py-16 "
+      style={{
+        background: "var(--color-surface)",
+        // background: "linear-gradient(to bottom, var(--bg-start), var(--bg-mid), var(--bg-end))",
+        color: "var(--color-foreground)",
+      }}
+    >
       <div className="mx-auto max-w-5xl px-4 md:px-8">
         <header className="mb-8 text-center">
           <h1 className="text-3xl font-extrabold text-indigo-700">
             Why choose GlobeTrail?
           </h1>
-          <p className="mt-2 text-sm text-gray-700 dark:text-neutral-300 max-w-2xl mx-auto">
+          <p
+            className="mx-auto mt-2 max-w-2xl text-sm"
+            style={{
+              color:
+                "color-mix(in oklab, var(--color-foreground) 80%, transparent)",
+            }}
+          >
             GlobeTrail helps you plan memorable trips quickly — smart
             suggestions, cost-aware planning, and beautiful outputs that are
             easy to share.
@@ -72,7 +85,11 @@ export default function FeaturesPage() {
           {FEATURES.map((f) => (
             <article
               key={f.title}
-              className="group relative overflow-hidden rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
+              className="group relative overflow-hidden rounded-2xl border p-6 shadow-sm transition hover:shadow-lg"
+              style={{
+                background: "var(--color-surface)",
+                borderColor: "var(--color-border)",
+              }}
             >
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-50 to-amber-50 text-2xl">
@@ -82,17 +99,36 @@ export default function FeaturesPage() {
                   <h3 className="text-lg font-semibold text-indigo-700">
                     {f.title}
                   </h3>
-                  <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
+                  <p
+                    className="mt-1 text-sm"
+                    style={{
+                      color:
+                        "color-mix(in oklab, var(--color-foreground) 85%, transparent)",
+                    }}
+                  >
                     {f.lead}
                   </p>
                 </div>
               </div>
-              <p className="mt-4 text-sm text-gray-600 dark:text-neutral-400">
+
+              <p
+                className="mt-4 text-sm"
+                style={{
+                  color:
+                    "color-mix(in oklab, var(--color-foreground) 75%, transparent)",
+                }}
+              >
                 {f.detail}
               </p>
 
               <div className="mt-6 flex items-center justify-between">
-                <div className="text-xs text-muted text-gray-500 dark:text-neutral-500">
+                <div
+                  className="text-xs"
+                  style={{
+                    color:
+                      "color-mix(in oklab, var(--color-foreground) 60%, transparent)",
+                  }}
+                >
                   Trusted by travelers — intuitive & fast
                 </div>
                 <Link
@@ -107,37 +143,64 @@ export default function FeaturesPage() {
         </section>
 
         {/* Comparison / quick benefits */}
-        <section className="mt-12 rounded-2xl bg-gradient-to-br from-white/80 to-indigo-50 p-6 shadow-sm ring-1 ring-indigo-50 dark:from-neutral-900 dark:to-neutral-900/40 dark:ring-neutral-800">
+        <section
+          className="mt-12 rounded-2xl p-6 shadow-sm ring-1"
+          style={{
+            background:
+              "linear-gradient(135deg, color-mix(in oklab, var(--color-surface) 95%, transparent), color-mix(in oklab, var(--bg-end) 35%, var(--color-surface)))",
+            // subtle ring that adapts to theme
+            // light: indigo-50 vibe, dark: border var
+            borderColor: "var(--color-border)",
+            // ring via box-shadow (since ring-* classes use Tailwind config)
+            boxShadow:
+              "0 0 0 1px color-mix(in oklab, var(--color-border) 70%, transparent)",
+          }}
+        >
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
               <h3 className="text-xl font-semibold text-indigo-700">
                 Designed for real travelers
               </h3>
-              <p className="mt-2 text-sm text-gray-700 dark:text-neutral-300 max-w-prose">
+              <p
+                className="mt-2 max-w-prose text-sm"
+                style={{
+                  color:
+                    "color-mix(in oklab, var(--color-foreground) 80%, transparent)",
+                }}
+              >
                 We balance planning and spontaneity — reliable schedules that
                 still leave room for discovery.
               </p>
             </div>
 
             <div className="grid gap-2 sm:grid-cols-3 md:auto-cols-min md:grid-flow-col">
-              <div className="rounded-lg bg-white/90 p-3 text-center shadow-sm dark:bg-neutral-800">
-                <div className="text-lg font-semibold">Offline Ready</div>
-                <div className="mt-1 text-xs text-gray-500 dark:text-neutral-400">
-                  Download itineraries
+              {[
+                { h: "Offline Ready", s: "Download itineraries" },
+                { h: "Local Tips", s: "Hidden gems & food spots" },
+                { h: "Secure", s: "Privacy & safe sharing" },
+              ].map((b) => (
+                <div
+                  key={b.h}
+                  className="rounded-lg p-3 text-center shadow-sm"
+                  style={{
+                    background:
+                      "color-mix(in oklab, var(--color-surface) 92%, transparent)",
+                  }}
+                >
+                  <div className="text-lg font-semibold text-[--color-foreground]">
+                    {b.h}
+                  </div>
+                  <div
+                    className="mt-1 text-xs"
+                    style={{
+                      color:
+                        "color-mix(in oklab, var(--color-foreground) 65%, transparent)",
+                    }}
+                  >
+                    {b.s}
+                  </div>
                 </div>
-              </div>
-              <div className="rounded-lg bg-white/90 p-3 text-center shadow-sm dark:bg-neutral-800">
-                <div className="text-lg font-semibold">Local Tips</div>
-                <div className="mt-1 text-xs text-gray-500 dark:text-neutral-400">
-                  Hidden gems & food spots
-                </div>
-              </div>
-              <div className="rounded-lg bg-white/90 p-3 text-center shadow-sm dark:bg-neutral-800">
-                <div className="text-lg font-semibold">Secure</div>
-                <div className="mt-1 text-xs text-gray-500 dark:text-neutral-400">
-                  Privacy & safe sharing
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
@@ -148,36 +211,39 @@ export default function FeaturesPage() {
             Frequently asked questions
           </h3>
           <div className="mt-4 space-y-4">
-            <details className="rounded-lg bg-white p-4 shadow-sm dark:bg-neutral-900">
-              <summary className="cursor-pointer text-sm font-medium">
-                How does the AI personalize my plan?
-              </summary>
-              <div className="mt-2 text-sm text-gray-700 dark:text-neutral-300">
-                We ask for dates, destinations, travel style, and budget — then
-                generate an itinerary that balances must-see sites with local
-                experiences.
-              </div>
-            </details>
-
-            <details className="rounded-lg bg-white p-4 shadow-sm dark:bg-neutral-900">
-              <summary className="cursor-pointer text-sm font-medium">
-                Can I edit the itinerary?
-              </summary>
-              <div className="mt-2 text-sm text-gray-700 dark:text-neutral-300">
-                Yes — you can add, remove, or reorder activities. Exports
-                (JSON/PDF) update to reflect edits.
-              </div>
-            </details>
-
-            <details className="rounded-lg bg-white p-4 shadow-sm dark:bg-neutral-900">
-              <summary className="cursor-pointer text-sm font-medium">
-                Is there a free tier?
-              </summary>
-              <div className="mt-2 text-sm text-gray-700 dark:text-neutral-300">
-                Yes — the Starter plan allows a few free itineraries so you can
-                try the product before upgrading.
-              </div>
-            </details>
+            {[
+              {
+                q: "How does the AI personalize my plan?",
+                a: "We ask for dates, destinations, travel style, and budget — then generate an itinerary that balances must-see sites with local experiences.",
+              },
+              {
+                q: "Can I edit the itinerary?",
+                a: "Yes — you can add, remove, or reorder activities. Exports (JSON/PDF) update to reflect edits.",
+              },
+              {
+                q: "Is there a free tier?",
+                a: "Yes — the Starter plan allows a few free itineraries so you can try the product before upgrading.",
+              },
+            ].map((item) => (
+              <details
+                key={item.q}
+                className="rounded-lg p-4 shadow-sm"
+                style={{ background: "var(--color-surface)" }}
+              >
+                <summary className="cursor-pointer text-sm font-medium text-[--color-foreground]">
+                  {item.q}
+                </summary>
+                <div
+                  className="mt-2 text-sm"
+                  style={{
+                    color:
+                      "color-mix(in oklab, var(--color-foreground) 80%, transparent)",
+                  }}
+                >
+                  {item.a}
+                </div>
+              </details>
+            ))}
           </div>
         </section>
 
@@ -201,7 +267,13 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        <footer className="mt-12 text-center text-xs text-gray-500 dark:text-neutral-400">
+        <footer
+          className="mt-12 text-center text-xs"
+          style={{
+            color:
+              "color-mix(in oklab, var(--color-foreground) 70%, transparent)",
+          }}
+        >
           © {new Date().getFullYear()} GlobeTrail — Plan smarter, travel
           happier.
         </footer>

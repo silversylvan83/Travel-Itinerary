@@ -122,8 +122,6 @@ const allDestinations: Destination[] = [
       "https://images.unsplash.com/photo-1588141396202-0413cf31f58a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fFJhbnRoYW1ib3JlfGVufDB8fDB8fHww",
     description: "Bengal tiger safaris among crumbling fort ruins.",
   },
-
-  // 🌍 Global — Crowd favorites
   {
     name: "Santorini, Greece",
     image:
@@ -254,79 +252,140 @@ export default function ExploreDestinations() {
   }, [q]);
 
   return (
-    <section id="destinations" className="mx-auto max-w-7xl px-4 py-12 md:px-8">
-      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">
-            Explore destinations
-          </h2>
-          <p className="mt-1 text-sm text-gray-600 dark:text-neutral-300">
-            Search for places to add to your itinerary.
-          </p>
-        </div>
+    <>
+      {/* Solid themed background that sits above layout gradient */}
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10"
+        style={{ background: "var(--color-surface)" }}
+      />
 
-        {/* Search bar */}
-        <div className="w-full sm:w-80">
-          <label className="sr-only" htmlFor="dest-search">
-            Search destinations
-          </label>
-          <input
-            id="dest-search"
-            type="text"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search (e.g., Taj Mahal, Kyoto, beaches)"
-            className="w-full rounded-xl border px-3 py-2 text-sm shadow-sm outline-none
-                       focus:ring-2 focus:ring-indigo-400 dark:border-neutral-700 dark:bg-neutral-900"
-          />
-          <p className="mt-1 text-xs text-gray-500">
-            {filtered.length} result{filtered.length === 1 ? "" : "s"}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((card) => (
-          <article
-            key={card.name}
-            className="group overflow-hidden rounded-2xl border bg-white/80 shadow-sm transition hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
-          >
-            <div className="relative">
-              <Image
-                src={card.image}
-                alt={card.name}
-                width={1200}
-                height={800}
-                className="h-56 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-              />
-            </div>
-            <div className="p-4">
-              <h3 className="text-base font-semibold">{card.name}</h3>
-              <p className="mt-1 text-sm text-gray-600 dark:text-neutral-300">
-                {card.description}
-              </p>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs text-indigo-600">
-                  Add to itinerary
-                </span>
-                <Link
-                  href="/"
-                  className="rounded-lg bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-600"
-                >
-                  Plan here
-                </Link>
-              </div>
-            </div>
-          </article>
-        ))}
-
-        {filtered.length === 0 && (
-          <div className="col-span-full rounded-2xl border bg-white/70 p-6 text-center text-sm text-gray-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
-            No destinations found. Try a different keyword (e.g., “temple”,
-            “beach”, “sunset”).
+      <section
+        id="destinations"
+        className="mx-auto max-w-7xl px-4 py-12 md:px-8"
+      >
+        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
+          <div>
+            <h2
+              className="text-2xl font-bold tracking-tight"
+              style={{ color: "var(--color-foreground)" }}
+            >
+              Explore destinations
+            </h2>
+            <p
+              className="mt-1 text-sm"
+              style={{
+                color:
+                  "color-mix(in oklab, var(--color-foreground) 75%, transparent)",
+              }}
+            >
+              Search for places to add to your itinerary.
+            </p>
           </div>
-        )}
-      </div>
-    </section>
+
+          {/* Search bar */}
+          <div className="w-full sm:w-80">
+            <label className="sr-only" htmlFor="dest-search">
+              Search destinations
+            </label>
+            <input
+              id="dest-search"
+              type="text"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search (e.g., Taj Mahal, Kyoto, beaches)"
+              className="w-full rounded-xl px-3 py-2 text-sm shadow-sm outline-none focus:ring-2 focus:ring-indigo-400"
+              style={{
+                background: "var(--color-surface)",
+                color: "var(--color-foreground)",
+                border: "1px solid var(--color-border)",
+              }}
+            />
+            <p
+              className="mt-1 text-xs"
+              style={{
+                color:
+                  "color-mix(in oklab, var(--color-foreground) 60%, transparent)",
+              }}
+            >
+              {filtered.length} result{filtered.length === 1 ? "" : "s"}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((card) => (
+            <article
+              key={card.name}
+              className="group overflow-hidden rounded-2xl border shadow-sm transition hover:shadow-lg"
+              style={{
+                background: "var(--color-surface)",
+                borderColor: "var(--color-border)",
+              }}
+            >
+              <div className="relative">
+                <Image
+                  src={card.image}
+                  alt={card.name}
+                  width={1200}
+                  height={800}
+                  className="h-56 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                />
+              </div>
+              <div className="p-4">
+                <h3
+                  className="text-base font-semibold"
+                  style={{ color: "var(--color-foreground)" }}
+                >
+                  {card.name}
+                </h3>
+                <p
+                  className="mt-1 text-sm"
+                  style={{
+                    color:
+                      "color-mix(in oklab, var(--color-foreground) 75%, transparent)",
+                  }}
+                >
+                  {card.description}
+                </p>
+                <div className="mt-3 flex items-center justify-between">
+                  <span
+                    className="text-xs"
+                    style={{
+                      color:
+                        "color-mix(in oklab, var(--color-foreground) 65%, transparent)",
+                    }}
+                  >
+                    Add to itinerary
+                  </span>
+                  <Link
+                    href="/"
+                    className="rounded-lg bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-600"
+                  >
+                    Plan here
+                  </Link>
+                </div>
+              </div>
+            </article>
+          ))}
+
+          {filtered.length === 0 && (
+            <div
+              className="col-span-full rounded-2xl border p-6 text-center text-sm"
+              style={{
+                background:
+                  "color-mix(in oklab, var(--color-surface) 92%, transparent)",
+                borderColor: "var(--color-border)",
+                color:
+                  "color-mix(in oklab, var(--color-foreground) 75%, transparent)",
+              }}
+            >
+              No destinations found. Try a different keyword (e.g., “temple”,
+              “beach”, “sunset”).
+            </div>
+          )}
+        </div>
+      </section>
+    </>
   );
 }
