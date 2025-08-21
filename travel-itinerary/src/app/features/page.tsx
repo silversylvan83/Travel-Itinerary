@@ -267,7 +267,7 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        <footer
+        {/* <footer
           className="mt-12 text-center text-xs"
           style={{
             color:
@@ -276,7 +276,7 @@ export default function FeaturesPage() {
         >
           © {new Date().getFullYear()} GlobeTrail — Plan smarter, travel
           happier.
-        </footer>
+        </footer> */}
       </div>
     </main>
   );

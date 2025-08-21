@@ -179,8 +179,12 @@ export default function LandingPage() {
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-8">
         <div className="relative overflow-hidden rounded-3xl border bg-indigo-600 p-8 text-white shadow-lg dark:border-neutral-800">
           <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
-          <h3 className="text-2xl font-bold">Ready to color your next adventure?</h3>
-          <p className="mt-1 text-sm opacity-90">Generate a day-by-day plan in seconds.</p>
+          <h3 className="text-2xl font-bold">
+            Ready to color your next adventure?
+          </h3>
+          <p className="mt-1 text-sm opacity-90">
+            Generate a day-by-day plan in seconds.
+          </p>
           <div className="mt-5">
             <Link
               href="/planner"
