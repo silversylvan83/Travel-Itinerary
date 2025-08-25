@@ -13,7 +13,8 @@ const inter = Inter({
 
 export const metadata = {
   title: "GlobeTrail",
-  description: "Plan unforgettable trips with AI. Colorful, fast, and delightful.",
+  description:
+    "Plan unforgettable trips with AI. Colorful, fast, and delightful.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -33,7 +34,6 @@ document.documentElement.classList.toggle('dark',!!m);}catch(e){}})();`,
         />
         {/* Minimal global CSS variables so you don't need tailwind.config.js */}
         <style
-          // global, not scoped
           dangerouslySetInnerHTML={{
             __html: `
 :root{

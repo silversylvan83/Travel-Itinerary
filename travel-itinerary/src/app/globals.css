@@ -1,52 +1,43 @@
 @import "tailwindcss";
 
-/* (Optional) Define a .dark variant that works with <html class="dark"> */
-@custom-variant dark (&:where(.dark, .dark *)); /* Enables `dark:` utilities too */
+@custom-variant dark (&:where(.dark, .dark *));
 
-/* 1) Core design tokens (Tailwind v4 reads from @theme) */
 @theme {
-  /* Font families */
-  --font-sans: var(--font-sans, ui-sans-serif), system-ui, -apple-system, "Segoe UI",
-               Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
-               "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-sans: var(--font-sans, ui-sans-serif), system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 
-  /* Brand/dark palette from your list */
   --color-caribbean_current: #006466;
-  --color-midnight_green:   #065a60;
-  --color-midnight_green2:  #0b525b;
-  --color-midnight_green3:  #144552;
-  --color-charcoal:         #1b3a4b;
-  --color-prussian_blue:    #212f45;
-  --color-space_cadet:      #272640;
-  --color-dark_purple:      #312244;
-  --color-dark_purple2:     #3e1f47;
-  --color-palatinate:       #4d194d;
+  --color-midnight_green: #065a60;
+  --color-midnight_green2: #0b525b;
+  --color-midnight_green3: #144552;
+  --color-charcoal: #1b3a4b;
+  --color-prussian_blue: #212f45;
+  --color-space_cadet: #272640;
+  --color-dark_purple: #312244;
+  --color-dark_purple2: #3e1f47;
+  --color-palatinate: #4d194d;
 
-  /* Semantic aliases (so you can use text-primary, bg-surface, etc.) */
   --color-primary: var(--color-caribbean_current);
-  --color-surface: #ffffff;         /* light default */
-  --color-border:  #e5e7eb;         /* light gray-200 */
-  --color-foreground: #111827;      /* light gray-900 */
+  --color-surface: #ffffff;
+  --color-border: #e5e7eb;
+  --color-foreground: #111827;
 
-  /* Gradient stops (LIGHT) */
-  --bg-start: #f5d0fe;  /* fuchsia-200-ish */
-  --bg-mid:   #ffffff;
-  --bg-end:   #e0e7ff;  /* indigo-100-ish */
+  --bg-start: #f5d0fe;
+  --bg-mid: #ffffff;
+  --bg-end: #e0e7ff;
 }
 
-/* 2) Dark theme overrides (no Tailwind config needed) */
 :root.dark {
   --color-surface: var(--color-space_cadet);
-  --color-border:  var(--color-midnight_green3);
+  --color-border: var(--color-midnight_green3);
   --color-foreground: #e5e7eb;
 
-  /* Your requested dark gradient */
   --bg-start: var(--color-caribbean_current);
-  --bg-mid:   var(--color-prussian_blue);
-  --bg-end:   var(--color-palatinate);
+  --bg-mid: var(--color-prussian_blue);
+  --bg-end: var(--color-palatinate);
 }
 
-/* 3) Utility helpers if you want subtle transparency on surfaces */
 .surface {
   background-color: color-mix(in oklab, var(--color-surface) 92%, transparent);
 }

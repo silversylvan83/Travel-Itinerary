@@ -1,4 +1,3 @@
-// components/NavBar.tsx
 "use client";
 
 import Image from "next/image";
@@ -10,7 +9,7 @@ export default function NavBar() {
     <nav
       className="sticky top-0 z-50 border-b"
       style={{
-        background: "var(--color-surface)", // background adjusts via theme vars
+        background: "var(--color-surface)",
         color: "var(--color-foreground)",
         borderColor: "var(--color-border)",
       }}
