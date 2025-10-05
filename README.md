@@ -47,7 +47,6 @@ The Travel Itinerary Generator leverages AI via the Gemini API to create detaile
 
 ## 📦 Installation
 
-```bash
 # Clone the repository
 git clone https://github.com/your-username/travel-itinerary.git
 
@@ -66,12 +65,11 @@ GEMINI_API_KEY=your_api_key_here
 
 ---
 
-## 📷 Screenshots
 
 
 
+## 🎬 Demo Video
+[Watch the demo](https://github.com/user-attachments/assets/7e00220b-903d-41eb-8413-0477d6cde631)
 
-
-https://github.com/user-attachments/assets/7e00220b-903d-41eb-8413-0477d6cde631
 
 
