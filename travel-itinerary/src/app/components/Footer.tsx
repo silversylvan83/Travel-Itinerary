@@ -1,5 +1,4 @@
-// components/Footer.tsx
-import Link from "next/link";
+import Link from 'next/link';
 
 export default function Footer() {
   return (
@@ -9,18 +8,23 @@ export default function Footer() {
         bg-white text-gray-800 border-gray-200
         dark:bg-neutral-950 dark:text-neutral-300 dark:border-neutral-800
       "
+      style={{
+        background: 'var(--color-surface)',
+        color: 'var(--color-foreground)',
+        borderColor: 'var(--color-border)',
+      }}
     >
       <div className="mx-auto max-w-7xl px-4 md:px-8">
-        <div className="mb-3">
+        <div className="mb-3 space-x-4">
           <Link
             href="/pricing"
-            className="mr-4 opacity-80 hover:opacity-100 hover:text-indigo-600 dark:hover:text-indigo-400"
+            className="opacity-80 hover:opacity-100 hover:text-indigo-600 dark:hover:text-indigo-400"
           >
             Pricing
           </Link>
           <Link
             href="/contact"
-            className="mr-4 opacity-80 hover:opacity-100 hover:text-indigo-600 dark:hover:text-indigo-400"
+            className="opacity-80 hover:opacity-100 hover:text-indigo-600 dark:hover:text-indigo-400"
           >
             Contact
           </Link>
@@ -29,6 +33,12 @@ export default function Footer() {
             className="opacity-80 hover:opacity-100 hover:text-indigo-600 dark:hover:text-indigo-400"
           >
             Features
+          </Link>
+          <Link
+            href="/login"
+            className="opacity-80 hover:opacity-100 hover:text-indigo-600 dark:hover:text-indigo-400"
+          >
+            Sign in
           </Link>
         </div>
         <div className="opacity-70">

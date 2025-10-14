@@ -1,8 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import logo from "../favicon.ico";
 import HeroSwiper from "../components/HeroSwiper";
-import ThemeToggle from "../components/ThemeToggle";
 
 export const metadata = {
   title: "GlobeTrail — AI Travel Itinerary Planner",
