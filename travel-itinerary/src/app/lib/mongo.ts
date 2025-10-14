@@ -1,13 +1,21 @@
 // src/lib/mongo.ts
 import mongoose from 'mongoose';
 
-const uri = process.env.MONGODB_URI!;
-let cached = (global as any)._mongoose as Promise<typeof mongoose> | undefined;
+// Narrow env first
+const rawUri = process.env.MONGODB_URI;
+if (!rawUri) throw new Error('MONGODB_URI missing in env');
+const uri: string = rawUri;
+
+// Augment the Node global object to cache the connection (no `any`)
+declare global {
+  var _mongoose: Promise<typeof mongoose> | undefined;
+}
 
 export async function connectDb() {
-  if (!cached) {
-    cached = mongoose.connect(uri, { dbName: process.env.MONGODB_DB || 'travel_itinerary' });
-    (global as any)._mongoose = cached;
+  if (!global._mongoose) {
+    global._mongoose = mongoose.connect(uri, {
+      dbName: process.env.MONGODB_DB ?? 'travel_itinerary',
+    });
   }
-  return cached;
+  return global._mongoose;
 }

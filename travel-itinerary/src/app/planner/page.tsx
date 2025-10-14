@@ -259,19 +259,6 @@ export default function HomePage() {
     if (el) (el as HTMLElement).scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function downloadJson() {
-    if (!itinerary) return;
-    const blob = new Blob([JSON.stringify(itinerary, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    const safeTitle = itinerary.title?.toLowerCase().replace(/\s+/g, "-") || "itinerary";
-    a.download = `${safeTitle}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
 
   const computedTotalCost = useMemo(() => {
     if (!itinerary?.days?.length) return 0;

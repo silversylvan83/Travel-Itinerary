@@ -1,10 +1,13 @@
 // src/lib/mongodb.ts
-import { MongoClient, Db, ServerApiVersion } from 'mongodb';
+import { MongoClient, Db, ServerApiVersion } from "mongodb";
 
-const uri = process.env.MONGODB_URI;
-if (!uri) {
-  throw new Error('MONGODB_URI missing in env');
+const rawUri = process.env.MONGODB_URI;
+
+// Explicit runtime + type check
+if (!rawUri) {
+  throw new Error("MONGODB_URI missing in environment variables");
 }
+const uri: string = rawUri; // <-- now it's definitely a string
 
 let client: MongoClient | null = null;
 let db: Db | null = null;
@@ -14,26 +17,44 @@ export async function getDb(): Promise<Db> {
 
   try {
     client = new MongoClient(uri, {
-      serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true },
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      },
     });
+
     await client.connect();
-    // Pick DB from URI path or default
+
+    // Pick DB from URI path or fallback
     const dbNameFromUri = (() => {
-      try { return new URL(uri).pathname.replace('/', '') || 'app'; } catch { return 'app'; }
+      try {
+        const parsed = new URL(uri);
+        const name = parsed.pathname.replace("/", "");
+        return name || "app";
+      } catch {
+        return "app";
+      }
     })();
+
     db = client.db(dbNameFromUri);
     return db;
-  } catch (err: any) {
-    // Add context for SRV/DNS issues
-    if (err?.code === 'ENOTFOUND' || /querySrv/i.test(String(err))) {
+  } catch (err: unknown) {
+    const error = err as { code?: string; message?: string };
+    const msg = String(error?.message ?? "");
+
+    if (error?.code === "ENOTFOUND" || /querySrv/i.test(msg)) {
       console.error(
-        'Mongo DNS/SRV lookup failed. Check:\n' +
-        ' - MONGODB_URI uses the exact Atlas SRV string\n' +
-        ' - API routes use Node.js runtime (export const runtime = "nodejs")\n' +
-        ' - Atlas Network Access allows your IP\n' +
-        ' - Corporate/VPN DNS isn’t blocking _mongodb._tcp lookups'
+        [
+          "Mongo DNS/SRV lookup failed. Check:",
+          " - MONGODB_URI uses the correct Atlas SRV string",
+          ' - API routes use Node.js runtime (export const runtime = "nodejs")',
+          " - Atlas Network Access allows your IP",
+          " - Corporate/VPN DNS isn’t blocking _mongodb._tcp lookups",
+        ].join("\n")
       );
     }
-    throw err;
+
+    throw error;
   }
 }
