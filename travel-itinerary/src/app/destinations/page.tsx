@@ -49,7 +49,231 @@ function PlannerLink({
 // --- /gate ---
 
 const allDestinations: Destination[] = [
-  // ... your destination list unchanged ...
+  // 🇮🇳 India — Icons
+  {
+    name: "Taj Mahal, Agra (India)",
+    image:
+      "https://images.unsplash.com/photo-1548013146-72479768bada?q=80&w=1600&auto=format&fit=crop",
+    description: "Marble mausoleum glowing at sunrise on the Yamuna river.",
+  },
+  {
+    name: "Jaipur, Rajasthan (India)",
+    image:
+      "https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: "Hawa Mahal, Amber Fort, and pink-washed bazaars.",
+  },
+  {
+    name: "Varanasi Ghats (India)",
+    image:
+      "https://images.unsplash.com/photo-1706186839147-0d708602587b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: "Boats at dawn and the evening Ganga Aarti on the ghats.",
+  },
+  {
+    name: "Kerala Backwaters, Alleppey (India)",
+    image:
+      "https://plus.unsplash.com/premium_photo-1719955783013-218981c48c89?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2VyZWFsYSUyMGJhY2t3YXRlcnN8ZW58MHx8MHx8fDA%3D",
+    description: "Palm-fringed canals and houseboats drifting past villages.",
+  },
+  {
+    name: "Goa Beaches (India)",
+    image:
+      "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description:
+      "Golden sands, shacks, and chilled sunsets on the Arabian Sea.",
+  },
+  {
+    name: "Ladakh — Pangong Lake (India)",
+    image:
+      "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGFkYWtofGVufDB8fDB8fHww",
+    description: "Turquoise high-altitude lake amid stark lunar landscapes.",
+  },
+  {
+    name: "Rishikesh (India)",
+    image:
+      "https://images.unsplash.com/photo-1720819029162-8500607ae232?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmlzaGlrZXNofGVufDB8fDB8fHww",
+    description:
+      "Yoga capital of the world on the Ganges, with hanging bridges.",
+  },
+  {
+    name: "Udaipur (India)",
+    image:
+      "https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dWRhaXB1cnxlbnwwfHwwfHx8MA%3D%3D",
+    description: "Romantic lake palaces and whitewashed havelis.",
+  },
+  {
+    name: "Hampi (India)",
+    image:
+      "https://images.unsplash.com/photo-1616606484004-5ef3cc46e39d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description: "Ruins scattered across boulder-strewn landscapes.",
+  },
+  {
+    name: "Darjeeling (India)",
+    image:
+      "https://images.unsplash.com/photo-1696426886039-a3b5c8774e3d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8ZGFyamVlbGluZ3xlbnwwfHwwfHx8MA%3D%3D",
+    description: "Toy train rides, tea estates, and Kanchenjunga views.",
+  },
+  {
+    name: "Amritsar — Golden Temple (India)",
+    image:
+      "https://plus.unsplash.com/premium_photo-1697730331435-92e07494db43?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Z29sZGVuJTIwdGVtcGxlfGVufDB8fDB8fHww",
+    description: "Gleaming sanctum and serene sarovar with langar service.",
+  },
+  {
+    name: "Mysuru Palace (India)",
+    image:
+      "https://images.unsplash.com/photo-1600112356915-089abb8fc71a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bXlzdXJ1JTIwcGFsYWNlfGVufDB8fDB8fHww",
+    description: "Illuminated Indo‑Saracenic palace and heritage lanes.",
+  },
+  {
+    name: "Munnar (India)",
+    image:
+      "https://images.unsplash.com/photo-1637066742971-726bee8d9f56?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bXVubmFyfGVufDB8fDB8fHww",
+    description: "Rolling tea gardens, misty hills, and cool weather.",
+  },
+  {
+    name: "Andaman — Radhanagar Beach (India)",
+    image:
+      "https://plus.unsplash.com/premium_photo-1665311539742-316504a6ec14?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8QW5kYW1hbiUyMCVFMiU4MCU5NCUyMFJhZGhhbmFnYXIlMjBCZWFjaCUyMChJbmRpYSl8ZW58MHx8MHx8fDA%3D",
+    description: "Powdery sands and turquoise waters on Havelock Island.",
+  },
+  {
+    name: "Kolkata (India)",
+    image:
+      "https://images.unsplash.com/photo-1542709618-9fa4290f0cfc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGtvbGthdGF8ZW58MHx8MHx8fDA%3D",
+    description: "Colonial charm, tram rides, and epic street food.",
+  },
+  {
+    name: "Mumbai Marine Drive (India)",
+    image:
+      "https://images.unsplash.com/photo-1673719895538-6373082b20d7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bWFyaW5lJTIwZHJpdmUlMjBtdW1iYWl8ZW58MHx8MHx8fDA%3D",
+    description: "Queen’s Necklace, Bollywood buzz, and seafront sunsets.",
+  },
+  {
+    name: "Meghalaya — Living Root Bridges (India)",
+    image:
+      "https://images.unsplash.com/photo-1521437620269-f477f5437820?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8TWVnaGFsYXlhfGVufDB8fDB8fHww",
+    description: "Handwoven bridges in emerald rainforests near Cherrapunji.",
+  },
+  {
+    name: "Ranthambore National Park (India)",
+    image:
+      "https://images.unsplash.com/photo-1588141396202-0413cf31f58a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fFJhbnRoYW1ib3JlfGVufDB8fDB8fHww",
+    description: "Bengal tiger safaris among crumbling fort ruins.",
+  },
+  {
+    name: "Santorini, Greece",
+    image:
+      "https://plus.unsplash.com/premium_photo-1661964149725-fbf14eabd38c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c2FudG9yaW5pfGVufDB8fDB8fHww",
+    description: "Clifftop white-and-blue villages and caldera sunsets.",
+  },
+  {
+    name: "Paris, France",
+    image:
+      "https://plus.unsplash.com/premium_photo-1661919210043-fd847a58522d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFyaXN8ZW58MHx8MHx8fDA%3D",
+    description: "Eiffel Tower twinkles, cafés, and world-class museums.",
+  },
+  {
+    name: "Kyoto, Japan",
+    image:
+      "https://images.unsplash.com/photo-1558862107-d49ef2a04d72?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8a3lvdG98ZW58MHx8MHx8fDA%3D",
+    description: "Torii gates, tea houses, and tranquil gardens.",
+  },
+  {
+    name: "Cappadocia, Türkiye",
+    image:
+      "https://images.unsplash.com/photo-1647955950690-989aaa0475e0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Q2FwcGFkb2NpYSUyQyUyMFQlQzMlQkNya2l5ZXxlbnwwfHwwfHx8MA%3D%3D",
+    description: "Fairy chimneys and sunrise hot‑air balloons.",
+  },
+  {
+    name: "Bali, Indonesia",
+    image:
+      "https://images.unsplash.com/photo-1577717903315-1691ae25ab3f?q=80&w=1600&auto=format&fit=crop",
+    description: "Rice terraces, temples, and wave‑washed beaches.",
+  },
+  {
+    name: "Rome, Italy",
+    image:
+      "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?q=80&w=1600&auto=format&fit=crop",
+    description: "Colosseum, Vatican, and pasta in piazzas.",
+  },
+  {
+    name: "London, UK",
+    image:
+      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1600&auto=format&fit=crop",
+    description: "Thames walks, markets, and royal landmarks.",
+  },
+  {
+    name: "New York City, USA",
+    image:
+      "https://images.unsplash.com/photo-1496588152823-86ff7695e68f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8bmV3JTIweW9yayUyMGNpdHl8ZW58MHx8MHx8fDA%3D",
+    description: "Skylines, Broadway, and endless neighborhoods.",
+  },
+  {
+    name: "Dubai, UAE",
+    image:
+      "https://images.unsplash.com/photo-1489516408517-0c0a15662682?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8ZHViYWklMjB1YWV8ZW58MHx8MHx8fDA%3D",
+    description: "Futuristic towers, desert safaris, and mega‑malls.",
+  },
+  {
+    name: "Phuket, Thailand",
+    image:
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop",
+    description: "Turquoise bays, island hops, and spicy street food.",
+  },
+  {
+    name: "Istanbul, Türkiye",
+    image:
+      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aXN0YW5idWx8ZW58MHx8MHx8fDA%3D",
+    description: "Mosques, bazaars, and Bosphorus breezes.",
+  },
+  {
+    name: "Barcelona, Spain",
+    image:
+      "https://images.unsplash.com/photo-1593368858664-a7fe556ab936?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmFyY2Vsb25hJTIwc3BhaW58ZW58MHx8MHx8fDA%3D",
+    description: "Gaudí’s curves, tapas crawls, and city beaches.",
+  },
+  {
+    name: "Machu Picchu, Peru",
+    image:
+      "https://images.unsplash.com/photo-1526392060635-9d6019884377?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFjY2h1JTIwcGljY2h1fGVufDB8fDB8fHww",
+    description: "Lost city of the Incas perched among Andean peaks.",
+  },
+  {
+    name: "Sydney, Australia",
+    image:
+      "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?q=80&w=1600&auto=format&fit=crop",
+    description: "Harbour icons, coastal walks, and laid‑back vibes.",
+  },
+  {
+    name: "Seoul, South Korea",
+    image:
+      "https://plus.unsplash.com/premium_photo-1661886333708-877148b43ae1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8U2VvdWx8ZW58MHx8MHx8fDA%3D",
+    description: "Palaces, neon districts, and K‑food adventures.",
+  },
+  {
+    name: "Reykjavik, Iceland",
+    image:
+      "https://images.unsplash.com/photo-1476610182048-b716b8518aae?q=80&w=1600&auto=format&fit=crop",
+    description: "Northern lights, waterfalls, and steaming lagoons.",
+  },
+  {
+    name: "Queenstown, New Zealand",
+    image:
+      "https://plus.unsplash.com/premium_photo-1661883289130-2ef3b6612fb3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8UXVlZW5zdG93bnxlbnwwfHwwfHx8MA%3D%3D",
+    description: "Adventure capital by mirror‑still lakes and peaks.",
+  },
+  {
+    name: "Petra, Jordan",
+    image:
+      "https://images.unsplash.com/photo-1580834341580-8c17a3a630ca?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGV0cmF8ZW58MHx8MHx8fDA%3D",
+    description: "Rose‑red city carved into sandstone cliffs.",
+  },
+  {
+    name: "Singapore",
+    image:
+      "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=1600&auto=format&fit=crop",
+    description: "Gardens by the Bay, hawker food, and spotless streets.",
+  },
 ];
 
 export default function ExploreDestinations() {
