@@ -1,197 +1,102 @@
-"use client"
-import { useEffect, useState } from "react";
+// app/features/page.tsx
 import Link from "next/link";
+import type { Metadata } from "next";
 
-export const data = {
+export const metadata: Metadata = {
   title: "Features — GlobeTrail",
   description:
     "Discover GlobeTrail's features: AI-powered itineraries, cost estimates, sharing, team tools and more.",
 };
 
 const FEATURES = [
-  {
-    title: "AI-Powered Itineraries",
-    lead: "Personalized day-by-day plans in seconds.",
-    detail:
-      "Tell GlobeTrail where you're going and what you like — get a polished schedule (sightseeing, dining, transit) tailored to your pace.",
-    icon: "🧠",
-  },
-  {
-    title: "Smart Budgeting",
-    lead: "Daily & trip cost estimates.",
-    detail:
-      "Set a budget and GlobeTrail suggests activities and accommodations that fit. See per-day cost breakdowns and totals in INR.",
-    icon: "💰",
-  },
-  {
-    title: "Beautiful & Shareable Plans",
-    lead: "Download JSON/PDF or share a link.",
-    detail:
-      "Handsomely formatted itineraries you can export and send to travel companions or keep for offline use.",
-    icon: "📤",
-  },
-  {
-    title: "Interactive Editing",
-    lead: "Add, move, or remove activities with ease.",
-    detail:
-      "Tweak times, notes, costs — the itinerary updates instantly so your plan stays realistic and flexible.",
-    icon: "✏️",
-  },
-  {
-    title: "Multi-Device Access",
-    lead: "Plan on desktop, view on mobile.",
-    detail:
-      "Your trips sync across devices so you can check plans while out and about.",
-    icon: "📱",
-  },
-  {
-    title: "Team & Family Sharing",
-    lead: "Collaborative planning for groups.",
-    detail:
-      "Invite others to view or edit. Manage approvals, split costs, and keep everyone on the same page.",
-    icon: "👥",
-  },
+  { title: "AI-Powered Itineraries", lead: "Personalized day-by-day plans in seconds.", detail: "Tell GlobeTrail where you're going and what you like — get a polished schedule (sightseeing, dining, transit) tailored to your pace.", icon: "🧠" },
+  { title: "Smart Budgeting", lead: "Daily & trip cost estimates.", detail: "Set a budget and GlobeTrail suggests activities and accommodations that fit. See per-day cost breakdowns and totals in INR.", icon: "💰" },
+  { title: "Beautiful & Shareable Plans", lead: "Download JSON/PDF or share a link.", detail: "Handsomely formatted itineraries you can export and send to travel companions or keep for offline use.", icon: "📤" },
+  { title: "Interactive Editing", lead: "Add, move, or remove activities with ease.", detail: "Tweak times, notes, costs — the itinerary updates instantly so your plan stays realistic and flexible.", icon: "✏️" },
+  { title: "Multi-Device Access", lead: "Plan on desktop, view on mobile.", detail: "Your trips sync across devices so you can check plans while out and about.", icon: "📱" },
+  { title: "Team & Family Sharing", lead: "Collaborative planning for groups.", detail: "Invite others to view or edit. Manage approvals, split costs, and keep everyone on the same page.", icon: "👥" },
 ];
 
-// Reusable small hook to detect verified user
-function useVerifiedGate() {
-  const [verified, setVerified] = useState<boolean>(false);
-
-  useEffect(() => {
-    let active = true;
-    fetch("/api/me", { credentials: "include", cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!active) return;
-        setVerified(data.ok === true && !!data.user?.isEmailVerified);
-      })
-      .catch(() => setVerified(false));
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const href = verified ? "/planner" : "/login?next=/planner";
-  const label = verified ? "Try it" : "Sign in to try";
-  return { href, label, verified };
-}
-
 export default function FeaturesPage() {
-  const gate = useVerifiedGate();
-
   return (
     <main
       className="min-h-dvh py-16"
-      style={{
-        background: "var(--color-surface)",
-        color: "var(--color-foreground)",
-      }}
+      style={{ background: "var(--color-surface)", color: "var(--color-foreground)" }}
     >
       <div className="mx-auto max-w-5xl px-4 md:px-8">
         <header className="mb-8 text-center">
-          <h1 className="text-3xl font-extrabold text-indigo-700">
-            Why choose GlobeTrail?
-          </h1>
+          <h1 className="text-3xl font-extrabold text-indigo-700">Why choose GlobeTrail?</h1>
           <p
             className="mx-auto mt-2 max-w-2xl text-sm"
-            style={{
-              color:
-                "color-mix(in oklab, var(--color-foreground) 80%, transparent)",
-            }}
+            style={{ color: "color-mix(in oklab, var(--color-foreground) 80%, transparent)" }}
           >
-            GlobeTrail helps you plan memorable trips quickly — smart
-            suggestions, cost-aware planning, and beautiful outputs that are
-            easy to share.
+            GlobeTrail helps you plan memorable trips quickly — smart suggestions, cost-aware planning, and beautiful
+            outputs that are easy to share.
           </p>
         </header>
 
-        {/* Feature grid */}
         <section className="grid gap-6 sm:grid-cols-2">
           {FEATURES.map((f) => (
             <article
               key={f.title}
               className="group relative overflow-hidden rounded-2xl border p-6 shadow-sm transition hover:shadow-lg"
-              style={{
-                background: "var(--color-surface)",
-                borderColor: "var(--color-border)",
-              }}
+              style={{ background: "var(--color-surface)", borderColor: "var(--color-border)" }}
             >
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-50 to-amber-50 text-2xl">
                   <span aria-hidden>{f.icon}</span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-indigo-700">
-                    {f.title}
-                  </h3>
+                  <h3 className="text-lg font-semibold text-indigo-700">{f.title}</h3>
                   <p
                     className="mt-1 text-sm"
-                    style={{
-                      color:
-                        "color-mix(in oklab, var(--color-foreground) 85%, transparent)",
-                    }}
+                    style={{ color: "color-mix(in oklab, var(--color-foreground) 85%, transparent)" }}
                   >
                     {f.lead}
                   </p>
                 </div>
               </div>
-
               <p
                 className="mt-4 text-sm"
-                style={{
-                  color:
-                    "color-mix(in oklab, var(--color-foreground) 75%, transparent)",
-                }}
+                style={{ color: "color-mix(in oklab, var(--color-foreground) 75%, transparent)" }}
               >
                 {f.detail}
               </p>
-
               <div className="mt-6 flex items-center justify-between">
                 <div
                   className="text-xs"
-                  style={{
-                    color:
-                      "color-mix(in oklab, var(--color-foreground) 60%, transparent)",
-                  }}
+                  style={{ color: "color-mix(in oklab, var(--color-foreground) 60%, transparent)" }}
                 >
                   Trusted by travelers — intuitive & fast
                 </div>
                 <Link
-                  href={gate.href}
+                  href="/planner"
                   className="rounded-full bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-indigo-700"
                 >
-                  {gate.label}
+                  Try it
                 </Link>
               </div>
             </article>
           ))}
         </section>
 
-        {/* Comparison / quick benefits */}
         <section
           className="mt-12 rounded-2xl p-6 shadow-sm ring-1"
           style={{
             background:
               "linear-gradient(135deg, color-mix(in oklab, var(--color-surface) 95%, transparent), color-mix(in oklab, var(--bg-end) 35%, var(--color-surface)))",
             borderColor: "var(--color-border)",
-            boxShadow:
-              "0 0 0 1px color-mix(in oklab, var(--color-border) 70%, transparent)",
+            boxShadow: "0 0 0 1px color-mix(in oklab, var(--color-border) 70%, transparent)",
           }}
         >
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-indigo-700">
-                Designed for real travelers
-              </h3>
+              <h3 className="text-xl font-semibold text-indigo-700">Designed for real travelers</h3>
               <p
                 className="mt-2 max-w-prose text-sm"
-                style={{
-                  color:
-                    "color-mix(in oklab, var(--color-foreground) 80%, transparent)",
-                }}
+                style={{ color: "color-mix(in oklab, var(--color-foreground) 80%, transparent)" }}
               >
-                We balance planning and spontaneity — reliable schedules that
-                still leave room for discovery.
+                We balance planning and spontaneity — reliable schedules that still leave room for discovery.
               </p>
             </div>
 
@@ -204,20 +109,12 @@ export default function FeaturesPage() {
                 <div
                   key={b.h}
                   className="rounded-lg p-3 text-center shadow-sm"
-                  style={{
-                    background:
-                      "color-mix(in oklab, var(--color-surface) 92%, transparent)",
-                  }}
+                  style={{ background: "color-mix(in oklab, var(--color-surface) 92%, transparent)" }}
                 >
-                  <div className="text-lg font-semibold text-[--color-foreground]">
-                    {b.h}
-                  </div>
+                  <div className="text-lg font-semibold text-[--color-foreground]">{b.h}</div>
                   <div
                     className="mt-1 text-xs"
-                    style={{
-                      color:
-                        "color-mix(in oklab, var(--color-foreground) 65%, transparent)",
-                    }}
+                    style={{ color: "color-mix(in oklab, var(--color-foreground) 65%, transparent)" }}
                   >
                     {b.s}
                   </div>
@@ -227,11 +124,8 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        {/* FAQ */}
         <section className="mt-12">
-          <h3 className="text-xl font-semibold text-indigo-700">
-            Frequently asked questions
-          </h3>
+          <h3 className="text-xl font-semibold text-indigo-700">Frequently asked questions</h3>
           <div className="mt-4 space-y-4">
             {[
               {
@@ -247,20 +141,13 @@ export default function FeaturesPage() {
                 a: "Yes — the Starter plan allows a few free itineraries so you can try the product before upgrading.",
               },
             ].map((item) => (
-              <details
-                key={item.q}
-                className="rounded-lg p-4 shadow-sm"
-                style={{ background: "var(--color-surface)" }}
-              >
+              <details key={item.q} className="rounded-lg p-4 shadow-sm" style={{ background: "var(--color-surface)" }}>
                 <summary className="cursor-pointer text-sm font-medium text-[--color-foreground]">
                   {item.q}
                 </summary>
                 <div
                   className="mt-2 text-sm"
-                  style={{
-                    color:
-                      "color-mix(in oklab, var(--color-foreground) 80%, transparent)",
-                  }}
+                  style={{ color: "color-mix(in oklab, var(--color-foreground) 80%, transparent)" }}
                 >
                   {item.a}
                 </div>
@@ -269,22 +156,14 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        {/* CTA */}
         <section className="mt-12 text-center">
           <div className="inline-flex items-center gap-4 rounded-2xl bg-indigo-600 px-6 py-5 text-white shadow-lg">
             <div className="text-left">
-              <div className="text-lg font-semibold">
-                Ready to plan your next trip?
-              </div>
-              <div className="text-sm opacity-90">
-                Generate a personalized itinerary in seconds.
-              </div>
+              <div className="text-lg font-semibold">Ready to plan your next trip?</div>
+              <div className="text-sm opacity-90">Generate a personalized itinerary in seconds.</div>
             </div>
-            <Link
-              href={gate.href}
-              className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-indigo-700"
-            >
-              {gate.verified ? "Open Planner" : "Sign in to plan"}
+            <Link href="/planner" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-indigo-700">
+              Open Planner
             </Link>
           </div>
         </section>

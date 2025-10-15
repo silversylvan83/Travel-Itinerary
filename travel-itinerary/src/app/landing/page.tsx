@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import HeroSwiper from "../components/HeroSwiper";
+import type { Metadata } from "next";
 
-export const data = {
+export const metadata: Metadata = {
   title: "GlobeTrail — AI Travel Itinerary Planner",
   description:
     "Plan unforgettable trips with AI. Colorful, fast, and delightful.",

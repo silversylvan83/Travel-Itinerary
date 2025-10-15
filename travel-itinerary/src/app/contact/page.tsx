@@ -2,8 +2,9 @@
 // app/contact/page.tsx
 import Link from "next/link";
 import ContactForm from "./ContactForm";
+import type { Metadata } from "next";
 
-export const data = {
+export const metadata: Metadata = {
   title: "Contact — GlobeTrail",
   description: "Get in touch with GlobeTrail. Questions, feedback or partnership inquiries — we'd love to hear from you.",
 };
