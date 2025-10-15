@@ -18,10 +18,7 @@ export async function POST(req: Request) {
     const otp = String(raw).replace(/\D/g, '').slice(0, 6);
 
     if (!/^\d{6}$/.test(otp)) {
-      return NextResponse.json(
-        { error: 'A valid 6-digit OTP is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'A valid 6-digit OTP is required' }, { status: 400 });
     }
 
     const user = await User.findOne({
@@ -30,10 +27,7 @@ export async function POST(req: Request) {
     }).sort({ updatedAt: -1 });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'OTP is invalid or has expired' },
-        { status: 489 }
-      );
+      return NextResponse.json({ error: 'OTP is invalid or has expired' }, { status: 489 });
     }
 
     user.isEmailVerified = true;
@@ -41,39 +35,40 @@ export async function POST(req: Request) {
     user.emailVerificationRawOTPExpires = undefined;
     await user.save({ validateBeforeSave: false });
 
-    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
-      user._id
-    );
+    // ✅ IMPORTANT: use a STRING id when signing
+    const { accessToken, refreshToken } =
+      await generateAccessAndRefreshTokens(user._id.toString());
 
     if (!accessToken || !refreshToken) {
-      return NextResponse.json(
-        { error: 'Authentication tokens missing' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Authentication tokens missing' }, { status: 401 });
     }
 
-    const res = NextResponse.json({ isEmailVerified: true, user });
+    // Trim user for client response
+    const safeUser = {
+      _id: user._id.toString(),
+      email: user.email,
+      userName: user.userName,
+      isEmailVerified: user.isEmailVerified,
+      createdAt: user.createdAt,
+    };
 
-    // Set cookies on the response (NOT via cookies())
+    const res = NextResponse.json({ isEmailVerified: true, user: safeUser });
+
+    // Set cookies on the RESPONSE
     const cookieOptions = {
-      httpOnly: true,
+      httpOnly: true as const,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax' as const,
       path: '/',
-      // maxAge: 60 * 60 * 24 * 7, // optionally set lifetime
     };
 
-    res.cookies.set('accessToken', accessToken, cookieOptions);
-    res.cookies.set('refreshToken', refreshToken, cookieOptions);
+    // Access: 15 minutes; Refresh: 7 days
+    res.cookies.set('accessToken', accessToken, { ...cookieOptions, maxAge: 60 * 15 });
+    res.cookies.set('refreshToken', refreshToken, { ...cookieOptions, maxAge: 60 * 60 * 24 * 7 });
 
     return res;
   } catch (err) {
-    // keep type-safe catch
-    const error = err as Error;
-    console.error('verify-otp error:', error);
-    return NextResponse.json(
-      { error: 'Verification failed' },
-      { status: 500 }
-    );
+    console.error('verify-otp error:', err);
+    return NextResponse.json({ error: 'Verification failed' }, { status: 500 });
   }
 }

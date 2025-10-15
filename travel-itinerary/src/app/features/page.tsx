@@ -266,17 +266,6 @@ export default function FeaturesPage() {
             </Link>
           </div>
         </section>
-
-        {/* <footer
-          className="mt-12 text-center text-xs"
-          style={{
-            color:
-              "color-mix(in oklab, var(--color-foreground) 70%, transparent)",
-          }}
-        >
-          © {new Date().getFullYear()} GlobeTrail — Plan smarter, travel
-          happier.
-        </footer> */}
       </div>
     </main>
   );
