@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay, EffectFade } from "swiper/modules";
 import "swiper/css";
@@ -7,7 +8,38 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
+type MeResponse =
+  | { ok: true; user: { isEmailVerified?: boolean } }
+  | { ok: false };
+
+function useVerifiedGate() {
+  const [verified, setVerified] = useState<boolean>(false);
+  const [ready, setReady] = useState<boolean>(false);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/me", { credentials: "include", cache: "no-store" })
+      .then((r) => r.json().catch(() => ({ ok: false }) as MeResponse))
+      .then((j: MeResponse) => {
+        if (!alive) return;
+        setVerified(j.ok === true && !!j.user?.isEmailVerified);
+      })
+      .catch(() => setVerified(false))
+      .finally(() => setReady(true));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // If not ready, we still send to login (safe default).
+  const href = verified ? "/planner" : "/login?next=/planner";
+  const label = verified ? "Open planner" : "Sign in to plan";
+  return { href, label, ready, verified };
+}
+
 export default function HeroSwiper() {
+  const gate = useVerifiedGate();
+
   return (
     <>
       <Swiper
@@ -22,9 +54,7 @@ export default function HeroSwiper() {
         {/* Slide 1 — Vietnam */}
         <SwiperSlide>
           <div className="relative h-full w-full bg-[url('https://images.unsplash.com/photo-1496133216394-bd66a733c696?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0')] bg-cover bg-center">
-            {/* gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-            {/* text content */}
             <div className="absolute inset-x-0 bottom-0 p-5 md:p-8">
               <div className="max-w-3xl">
                 <span className="inline-block rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-neutral-900 shadow-sm backdrop-blur dark:bg-neutral-900/80 dark:text-white">
@@ -38,10 +68,10 @@ export default function HeroSwiper() {
                   colorful route from Sapa to Hội An.
                 </p>
                 <a
-                  href="/planner"
+                  href={gate.href}
                   className="mt-4 inline-block rounded-xl bg-white px-4 py-2 text-sm font-semibold text-neutral-900 shadow hover:bg-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
                 >
-                  Plan this trip
+                  {gate.label}
                 </a>
               </div>
             </div>
@@ -65,10 +95,10 @@ export default function HeroSwiper() {
                   timeless lanes.
                 </p>
                 <a
-                  href="/planner"
+                  href={gate.href}
                   className="mt-4 inline-block rounded-xl bg-white px-4 py-2 text-sm font-semibold text-neutral-900 shadow hover:bg-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
                 >
-                  Add to itinerary
+                  {gate.label}
                 </a>
               </div>
             </div>
@@ -92,10 +122,10 @@ export default function HeroSwiper() {
                   week of epic peaks.
                 </p>
                 <a
-                  href="/planner"
+                  href={gate.href}
                   className="mt-4 inline-block rounded-xl bg-white px-4 py-2 text-sm font-semibold text-neutral-900 shadow hover:bg-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
                 >
-                  Build my route
+                  {gate.label}
                 </a>
               </div>
             </div>
@@ -103,7 +133,7 @@ export default function HeroSwiper() {
         </SwiperSlide>
       </Swiper>
 
-      {/* Custom styles for arrows (kept) */}
+      {/* keep arrows & pagination visible on photos */}
       <style jsx>{`
         :global(.swiper-button-next),
         :global(.swiper-button-prev) {
@@ -113,7 +143,7 @@ export default function HeroSwiper() {
         :global(.swiper-button-next::after),
         :global(.swiper-button-prev::after) {
           font-size: 20px;
-          color: #fff; /* keep arrows visible over photos */
+          color: #fff;
           text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
         :global(.swiper-pagination-bullet) {

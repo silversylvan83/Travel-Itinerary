@@ -3,7 +3,7 @@
 import Link from "next/link";
 import ContactForm from "./ContactForm";
 
-export const metadata = {
+export const data = {
   title: "Contact — GlobeTrail",
   description: "Get in touch with GlobeTrail. Questions, feedback or partnership inquiries — we'd love to hear from you.",
 };

@@ -11,7 +11,7 @@ const inter = Inter({
   variable: "--font-sans", // used by Tailwind v4 @theme or plain CSS var
 });
 
-export const metadata = {
+export const data = {
   title: "GlobeTrail",
   description:
     "Plan unforgettable trips with AI. Colorful, fast, and delightful.",

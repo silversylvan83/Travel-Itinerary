@@ -1,9 +1,53 @@
-// app/page.tsx (LandingPage)
+// app/page.tsx (LandingPage) — GATED PLANNER LINKS
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import HeroSwiper from "./components/HeroSwiper";
 
-export const metadata = {
+// Check auth/verification on the client
+function useVerifiedGate() {
+  const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/me", { credentials: "include", cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => {
+        if (!alive) return;
+        setVerified(j?.ok === true && !!j?.user?.isEmailVerified);
+      })
+      .catch(() => setVerified(false));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Return the gated target + label
+  return {
+    verified,
+    href: verified ? "/planner" : "/login?next=/planner",
+  };
+}
+
+// Reusable gated link with variants for styling
+function PlannerLink({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const gate = useVerifiedGate();
+  return (
+    <Link href={gate.href} className={className}>
+      {children}
+    </Link>
+  );
+}
+
+export const data = {
   title: "GlobeTrail — AI Travel Itinerary Planner",
   description:
     "Plan unforgettable trips with AI. Colorful, fast, and delightful.",
@@ -15,13 +59,9 @@ export default function LandingPage() {
       <HeroSwiper />
 
       {/* Destinations Gallery */}
-      <section
-        id="destinations"
-        className="mx-auto max-w-7xl px-4 py-12 md:px-8"
-      >
+      <section id="destinations" className="mx-auto max-w-7xl px-4 py-12 md:px-8">
         <div className="flex items-end justify-between">
           <div>
-            {/* Strong contrast in light */}
             <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">
               Beautiful destinations
             </h2>
@@ -29,12 +69,13 @@ export default function LandingPage() {
               Hand-picked places your itinerary can include—instantly.
             </p>
           </div>
-          <Link
-            href="/planner"
+
+          {/* GATED button */}
+          <PlannerLink
             className="hidden rounded-xl border border-indigo-200 bg-white px-4 py-2 text-sm text-gray-900 hover:bg-white dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 md:block"
           >
             Generate my plan
-          </Link>
+          </PlannerLink>
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -96,19 +137,14 @@ export default function LandingPage() {
                 <h3 className="text-base font-semibold text-gray-900 dark:text-neutral-100">
                   {card.title}
                 </h3>
-                <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
-                  {card.desc}
-                </p>
+                <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">{card.desc}</p>
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs text-indigo-700 dark:text-indigo-400">
-                    Add to itinerary
-                  </span>
-                  <Link
-                    href="/planner"
-                    className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"
-                  >
+                  <span className="text-xs text-indigo-700 dark:text-indigo-400">Add to itinerary</span>
+
+                  {/* GATED small button */}
+                  <PlannerLink className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700">
                     Plan here
-                  </Link>
+                  </PlannerLink>
                 </div>
               </div>
             </article>
@@ -122,8 +158,7 @@ export default function LandingPage() {
           Why Book With Us?
         </h2>
         <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
-          Experience travel planning like never before with GlobeTrail’s smart
-          and seamless features.
+          Experience travel planning like never before with GlobeTrail’s smart and seamless features.
         </p>
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -167,9 +202,7 @@ export default function LandingPage() {
               <h3 className="text-base font-semibold text-gray-900 dark:text-neutral-100">
                 {feature.title}
               </h3>
-              <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
-                {feature.desc}
-              </p>
+              <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">{feature.desc}</p>
             </div>
           ))}
         </div>
@@ -179,19 +212,13 @@ export default function LandingPage() {
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-8">
         <div className="relative overflow-hidden rounded-3xl border bg-indigo-600 p-8 text-white shadow-lg dark:border-neutral-800">
           <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
-          <h3 className="text-2xl font-bold">
-            Ready to color your next adventure?
-          </h3>
-          <p className="mt-1 text-sm opacity-90">
-            Generate a day-by-day plan in seconds.
-          </p>
+          <h3 className="text-2xl font-bold">Ready to color your next adventure?</h3>
+          <p className="mt-1 text-sm opacity-90">Generate a day-by-day plan in seconds.</p>
           <div className="mt-5">
-            <Link
-              href="/planner"
-              className="inline-block rounded-xl bg-white px-5 py-3 text-sm font-semibold text-indigo-700 shadow hover:bg-indigo-50"
-            >
+            {/* GATED primary CTA */}
+            <PlannerLink className="inline-block rounded-xl bg-white px-5 py-3 text-sm font-semibold text-indigo-700 shadow hover:bg-indigo-50">
               Plan my trip
-            </Link>
+            </PlannerLink>
           </div>
         </div>
       </section>

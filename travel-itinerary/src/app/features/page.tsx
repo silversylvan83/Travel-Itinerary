@@ -1,7 +1,8 @@
-// app/features/page.tsx
+"use client"
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
-export const metadata = {
+export const data = {
   title: "Features — GlobeTrail",
   description:
     "Discover GlobeTrail's features: AI-powered itineraries, cost estimates, sharing, team tools and more.",
@@ -52,13 +53,37 @@ const FEATURES = [
   },
 ];
 
+// Reusable small hook to detect verified user
+function useVerifiedGate() {
+  const [verified, setVerified] = useState<boolean>(false);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/me", { credentials: "include", cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!active) return;
+        setVerified(data.ok === true && !!data.user?.isEmailVerified);
+      })
+      .catch(() => setVerified(false));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const href = verified ? "/planner" : "/login?next=/planner";
+  const label = verified ? "Try it" : "Sign in to try";
+  return { href, label, verified };
+}
+
 export default function FeaturesPage() {
+  const gate = useVerifiedGate();
+
   return (
     <main
-      className="min-h-dvh py-16 "
+      className="min-h-dvh py-16"
       style={{
         background: "var(--color-surface)",
-        // background: "linear-gradient(to bottom, var(--bg-start), var(--bg-mid), var(--bg-end))",
         color: "var(--color-foreground)",
       }}
     >
@@ -132,10 +157,10 @@ export default function FeaturesPage() {
                   Trusted by travelers — intuitive & fast
                 </div>
                 <Link
-                  href="/planner"
+                  href={gate.href}
                   className="rounded-full bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-indigo-700"
                 >
-                  Try it
+                  {gate.label}
                 </Link>
               </div>
             </article>
@@ -148,10 +173,7 @@ export default function FeaturesPage() {
           style={{
             background:
               "linear-gradient(135deg, color-mix(in oklab, var(--color-surface) 95%, transparent), color-mix(in oklab, var(--bg-end) 35%, var(--color-surface)))",
-            // subtle ring that adapts to theme
-            // light: indigo-50 vibe, dark: border var
             borderColor: "var(--color-border)",
-            // ring via box-shadow (since ring-* classes use Tailwind config)
             boxShadow:
               "0 0 0 1px color-mix(in oklab, var(--color-border) 70%, transparent)",
           }}
@@ -259,10 +281,10 @@ export default function FeaturesPage() {
               </div>
             </div>
             <Link
-              href="/planner"
+              href={gate.href}
               className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-indigo-700"
             >
-              Open Planner
+              {gate.verified ? "Open Planner" : "Sign in to plan"}
             </Link>
           </div>
         </section>
