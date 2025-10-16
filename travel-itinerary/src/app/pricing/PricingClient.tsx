@@ -114,10 +114,10 @@ export default function PricingClient() {
   return (
     <>
       {/* Solid themed background to override layout gradient, if any */}
-      <div
+      <main
         aria-hidden
-        className="fixed inset-0 -z-10"
-        style={{ background: "var(--color-surface)" }}
+        className="fixed inset-0 -z-10  bg-gradient-to-b from-fuchsia-100 via-white to-indigo-50 dark:from-violet-950 dark:via-neutral-950 dark:to-indigo-950"
+        // style={{ background: "var(--color-surface)" }}
       />
 
       <section
