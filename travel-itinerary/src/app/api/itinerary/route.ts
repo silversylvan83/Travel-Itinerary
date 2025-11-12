@@ -9,8 +9,11 @@ interface ItineraryFormData {
   currency?: string;
 }
 
-// Pick a model: "gemini-2.5-flash" (fast/cheap) or "gemini-2.5-pro" (stronger)
-const MODEL = "models/gemini-2.5-flash";
+// Primary Groq model and a lighter fallback
+const PRIMARY_MODEL = "llama-3.3-70b-versatile";
+const FALLBACK_MODEL = "llama-3.1-8b-instant";
+
+const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 
 export async function POST(req: Request) {
   try {
@@ -27,9 +30,37 @@ export async function POST(req: Request) {
       );
     }
 
-    // Build a tight prompt
-    const prompt = `
-You are a travel planner. Create a day-by-day itinerary.
+    // Build prompt (system + user). We ask for strict JSON via response_format.
+    const systemPrompt = `
+You are a disciplined travel planner.
+Return ONLY a single JSON object that matches this TypeScript-like schema:
+
+{
+  "title": string,
+  "summary": string,
+  "currency": string,
+  "totalEstimatedCost": number,
+  "days": Array<{
+    "date": string,               // ISO or readable date
+    "destination": string,
+    "morning": string,
+    "afternoon": string,
+    "evening": string,
+    "estCost": number,
+    "notes"?: string
+  }>
+}
+
+Rules:
+- No markdown, no prose outside the JSON.
+- Populate all required fields.
+- Costs should be realistic for the region and add up.
+- Distribute days across the given destinations in order.
+- Include morning/afternoon/evening activities each day.
+`.trim();
+
+    const userPrompt = `
+Create a day-by-day itinerary.
 
 Constraints:
 - Trip title: ${body.title}
@@ -41,79 +72,91 @@ Constraints:
 
 Requirements:
 - Distribute days across destinations in order.
-- Include morning, afternoon, evening activities per day.
-- Suggest realistic costs (estCost per day) and totalEstimatedCost.
+- Include morning, afternoon, and evening activities per day.
+- Suggest realistic per-day costs ("estCost") and a "totalEstimatedCost".
 - Optimize for travel time and local highlights.
-    `.trim();
+`.trim();
 
-    // REST call to Gemini generateContent (v1beta)
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/${MODEL}:generateContent`,
-      {
+    const messages = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ];
+
+    async function callGroq(model: string) {
+      const res = await fetch(GROQ_ENDPOINT, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-goog-api-key": process.env.GEMINI_API_KEY!, // keep server-side
+          "Authorization": `Bearer ${process.env.GROQ_API_KEY!}`,
         },
         body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }],
-            },
-          ],
-          // Ask for strict JSON via JSON Mode + schema
-          generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: "OBJECT",
-              properties: {
-                title: { type: "STRING" },
-                summary: { type: "STRING" },
-                currency: { type: "STRING" },
-                totalEstimatedCost: { type: "NUMBER" },
-                days: {
-                  type: "ARRAY",
-                  items: {
-                    type: "OBJECT",
-                    properties: {
-                      date: { type: "STRING" },
-                      destination: { type: "STRING" },
-                      morning: { type: "STRING" },
-                      afternoon: { type: "STRING" },
-                      evening: { type: "STRING" },
-                      estCost: { type: "NUMBER" },
-                      notes: { type: "STRING" },
-                    },
-                    required: [
-                      "date",
-                      "destination",
-                      "morning",
-                      "afternoon",
-                      "evening",
-                    ],
-                  },
-                },
-              },
-              required: ["title", "summary", "days"],
-            },
-          },
+          model,
+          messages,
+          temperature: 0.2,
+          // Request strict JSON output
+          response_format: { type: "json_object" },
         }),
+      });
+      return res;
+    }
+
+    // Simple retry with exponential backoff, then fallback model
+    async function callWithRetryAndFallback() {
+      const maxRetries = 2;
+      let res = null;
+
+      // Try primary with retries
+      for (let i = 0; i <= maxRetries; i++) {
+        res = await callGroq(PRIMARY_MODEL);
+        if (res.ok) return res;
+        if (![429, 500, 502, 503, 504].includes(res.status)) return res;
+        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, i))); // 1s, 2s, 4s
       }
-    );
+
+      // Fallback model with a single attempt
+      res = await callGroq(FALLBACK_MODEL);
+      return res;
+    }
+
+    const res = await callWithRetryAndFallback();
 
     if (!res.ok) {
-      const errText = await res.text();
-      console.error("Gemini error:", res.status, errText);
-      return NextResponse.json({ error: "Gemini API error." }, { status: 500 });
+      const errText = await res.text().catch(() => "");
+      console.error("Groq error:", res.status, errText);
+      return NextResponse.json(
+        { error: errText || `Groq API error: ${res.statusText}` },
+        { status: res.status }
+      );
     }
 
     const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content ?? "";
 
-    // The text is in candidates[0].content.parts[*].text even in JSON mode.
-    // JSON Mode returns a JSON string in .text — parse it:
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-    const itinerary = text ? JSON.parse(text) : null;
+    // response_format: json_object should give a JSON string as content
+    let itinerary = null;
+    try {
+      itinerary = content ? JSON.parse(content) : null;
+    } catch (e) {
+      console.error("Failed to parse Groq JSON content:", e, content);
+      return NextResponse.json(
+        { error: "Model returned non-JSON content." },
+        { status: 502 }
+      );
+    }
+
+    // Optional: lightweight server-side validation (required keys)
+    if (
+      !itinerary ||
+      typeof itinerary !== "object" ||
+      !itinerary.title ||
+      !itinerary.summary ||
+      !Array.isArray(itinerary.days)
+    ) {
+      return NextResponse.json(
+        { error: "Model JSON missing required fields." },
+        { status: 502 }
+      );
+    }
 
     return NextResponse.json({ itinerary });
   } catch (e) {
