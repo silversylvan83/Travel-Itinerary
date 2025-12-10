@@ -44,7 +44,9 @@ interface ModelItinerary {
   days?: ModelDay[];
 }
 
-async function createItinerary(formData: ItineraryFormData): Promise<Itinerary> {
+async function createItinerary(
+  formData: ItineraryFormData
+): Promise<Itinerary> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000);
 
@@ -62,7 +64,11 @@ async function createItinerary(formData: ItineraryFormData): Promise<Itinerary> 
       const text = await res.text();
       try {
         const json = JSON.parse(text);
-        throw new Error(json?.error || JSON.stringify(json) || `Request failed with ${res.status}`);
+        throw new Error(
+          json?.error ||
+            JSON.stringify(json) ||
+            `Request failed with ${res.status}`
+        );
       } catch {
         throw new Error(text || `Request failed with ${res.status}`);
       }
@@ -74,7 +80,9 @@ async function createItinerary(formData: ItineraryFormData): Promise<Itinerary> 
     if (raw.error) throw new Error(raw.error);
 
     const modelItin: ModelItinerary | undefined =
-      "itinerary" in raw ? (raw.itinerary as ModelItinerary) : (raw as ModelItinerary);
+      "itinerary" in raw
+        ? (raw.itinerary as ModelItinerary)
+        : (raw as ModelItinerary);
 
     if (!modelItin) throw new Error("Invalid itinerary response from server.");
 
@@ -84,7 +92,10 @@ async function createItinerary(formData: ItineraryFormData): Promise<Itinerary> 
   }
 }
 
-function mapModelItineraryToItinerary(model: ModelItinerary, formData: ItineraryFormData): Itinerary {
+function mapModelItineraryToItinerary(
+  model: ModelItinerary,
+  formData: ItineraryFormData
+): Itinerary {
   const days: Day[] = (model.days ?? []).map((d) => {
     const activities: Activity[] = [];
     if (d.morning)
@@ -94,8 +105,14 @@ function mapModelItineraryToItinerary(model: ModelItinerary, formData: Itinerary
         notes: d.notes,
         cost: typeof d.estCost === "number" ? d.estCost : undefined,
       });
-    if (d.afternoon) activities.push({ time: "Afternoon", title: d.afternoon, notes: d.notes });
-    if (d.evening) activities.push({ time: "Evening", title: d.evening, notes: d.notes });
+    if (d.afternoon)
+      activities.push({
+        time: "Afternoon",
+        title: d.afternoon,
+        notes: d.notes,
+      });
+    if (d.evening)
+      activities.push({ time: "Evening", title: d.evening, notes: d.notes });
     return { date: d.date ?? "", destination: d.destination, activities };
   });
 
@@ -105,7 +122,10 @@ function mapModelItineraryToItinerary(model: ModelItinerary, formData: Itinerary
     days,
     tips: model.tips ?? [],
     summary: model.summary,
-    totalEstimatedCost: typeof model.totalEstimatedCost === "number" ? model.totalEstimatedCost : undefined,
+    totalEstimatedCost:
+      typeof model.totalEstimatedCost === "number"
+        ? model.totalEstimatedCost
+        : undefined,
   };
 }
 
@@ -121,93 +141,148 @@ export default function HomePage() {
   const [error, setError] = useState<string>("");
 
   // PDF
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const downloadPdf = (itinerary: any) => {
-    if (!itinerary) return;
+  const downloadPdf = (itin: Itinerary | null) => {
+    if (!itin) return;
+
     const pdf = new jsPDF({ unit: "pt", format: "a4" });
     const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 40;
     let y = margin;
 
+    const addPageIfNeeded = (extraHeight: number) => {
+      if (y + extraHeight > pageHeight - margin) {
+        pdf.addPage();
+        y = margin;
+      }
+    };
+
+    // Title
     pdf.setFontSize(20);
-    pdf.text(itinerary.title || "Itinerary", pageWidth / 2, y, { align: "center" });
+    pdf.text(itin.title || "Itinerary", pageWidth / 2, y, { align: "center" });
     y += 30;
 
-    if (itinerary.summary) {
+    // Summary
+    if (itin.summary) {
       pdf.setFontSize(12);
       pdf.text("Summary:", margin, y);
       y += 15;
-      const summaryLines = pdf.splitTextToSize(itinerary.summary, pageWidth - 2 * margin);
+
+      const summaryLines = pdf.splitTextToSize(
+        itin.summary,
+        pageWidth - 2 * margin
+      );
+      addPageIfNeeded(summaryLines.length * 15);
       pdf.text(summaryLines, margin, y);
       y += summaryLines.length * 15 + 10;
     }
 
-    if (Array.isArray(itinerary.days)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      itinerary.days.forEach((day: any, index: number) => {
+    // Days
+    if (Array.isArray(itin.days) && itin.days.length) {
+      itin.days.forEach((day, index) => {
+        // Day header: Day X - date - destination
+        const dateLabel = day.date
+          ? new Date(day.date).toLocaleDateString(undefined, {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+            })
+          : "";
+
+        const header = `Day ${index + 1}${dateLabel ? ` - ${dateLabel}` : ""}${
+          day.destination ? ` - ${day.destination}` : ""
+        }`;
+
         pdf.setFontSize(14);
-        pdf.text(`Day ${index + 1} - ${day.date || ""}`, margin, y);
+        addPageIfNeeded(25);
+        pdf.text(header, margin, y);
         y += 20;
 
-        Object.keys(day).forEach((key) => {
-          if (key === "date") return;
-          const value = day[key];
-          if (Array.isArray(value)) {
-            pdf.setFontSize(12);
-            pdf.text(`${capitalizeFirstLetter(key)}:`, margin, y);
-            y += 15;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            value.forEach((item: any) => {
-              const lines = pdf.splitTextToSize(`• ${item}`, pageWidth - 2 * margin);
-              if (y + lines.length * 15 > pdf.internal.pageSize.getHeight() - margin) {
-                pdf.addPage();
-                y = margin;
-              }
-              pdf.text(lines, margin + 10, y);
-              y += lines.length * 15;
-            });
-          } else if (value) {
-            const lines = pdf.splitTextToSize(`${capitalizeFirstLetter(key)}: ${value}`, pageWidth - 2 * margin);
-            if (y + lines.length * 15 > pdf.internal.pageSize.getHeight() - margin) {
-              pdf.addPage();
-              y = margin;
-            }
-            pdf.text(lines, margin, y);
-            y += lines.length * 15;
+        // Activities
+        day.activities.forEach((activity) => {
+          pdf.setFontSize(12);
+
+          const costText =
+            typeof activity.cost === "number"
+              ? ` (${itin.currency || "INR"} ${activity.cost})`
+              : "";
+
+          const mainLine = `• ${activity.time ? `${activity.time}: ` : ""}${
+            activity.title
+          }${costText}`;
+
+          const mainLines = pdf.splitTextToSize(
+            mainLine,
+            pageWidth - 2 * margin
+          );
+          addPageIfNeeded(mainLines.length * 15);
+          pdf.text(mainLines, margin, y);
+          y += mainLines.length * 15;
+
+          if (activity.notes) {
+            const noteLines = pdf.splitTextToSize(
+              `   ${activity.notes}`,
+              pageWidth - 2 * margin
+            );
+            addPageIfNeeded(noteLines.length * 15);
+            pdf.text(noteLines, margin, y);
+            y += noteLines.length * 15;
           }
+
+          y += 5; // small spacing between activities
         });
 
-        y += 10;
+        y += 10; // spacing between days
       });
     }
 
-    if (itinerary.tips && itinerary.tips.length) {
+    // Tips
+    if (itin.tips && itin.tips.length) {
       pdf.setFontSize(14);
+      addPageIfNeeded(25);
       pdf.text("Tips:", margin, y);
       y += 20;
-      itinerary.tips.forEach((tip: string) => {
+
+      itin.tips.forEach((tip) => {
         const lines = pdf.splitTextToSize(`• ${tip}`, pageWidth - 2 * margin);
-        if (y + lines.length * 15 > pdf.internal.pageSize.getHeight() - margin) {
-          pdf.addPage();
-          y = margin;
-        }
+        addPageIfNeeded(lines.length * 15);
         pdf.text(lines, margin + 10, y);
         y += lines.length * 15;
       });
+
       y += 10;
     }
 
-    if (itinerary.totalEstimatedCost) {
-      if (y + 20 > pdf.internal.pageSize.getHeight() - margin) pdf.addPage();
+    // Total Estimated Cost
+    const summedCost =
+      itin.days?.reduce(
+        (sum, d) =>
+          sum +
+          d.activities.reduce(
+            (s, a) => s + (typeof a.cost === "number" ? a.cost : 0),
+            0
+          ),
+        0
+      ) ?? 0;
+
+    const displayedTotal = itin.totalEstimatedCost ?? summedCost;
+
+    if (displayedTotal > 0) {
+      addPageIfNeeded(25);
       pdf.setFontSize(14);
-      pdf.text(`Total Estimated Cost: ${itinerary.currency || ""} ${itinerary.totalEstimatedCost}`, margin, y);
+      pdf.text(
+        `Total Estimated Cost: ${itin.currency || "INR"} ${displayedTotal}`,
+        margin,
+        y
+      );
     }
 
-    pdf.save(`${(itinerary.title || "itinerary").toLowerCase().replace(/\s+/g, "-")}.pdf`);
+    pdf.save(
+      `${(itin.title || "itinerary").toLowerCase().replace(/\s+/g, "-")}.pdf`
+    );
   };
-  const handleDownloadPdf = () => downloadPdf(itinerary);
 
-  const capitalizeFirstLetter = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  const handleDownloadPdf = () => downloadPdf(itinerary);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -215,11 +290,17 @@ export default function HomePage() {
     setItinerary(null);
 
     if (!title.trim()) return setError("Please enter a title.");
-    if (!startDate || !endDate) return setError("Please provide both start and end dates.");
-    if (new Date(startDate) > new Date(endDate)) return setError("Start date cannot be after end date.");
+    if (!startDate || !endDate)
+      return setError("Please provide both start and end dates.");
+    if (new Date(startDate) > new Date(endDate))
+      return setError("Start date cannot be after end date.");
 
-    const dests = destinations.split(",").map((s) => s.trim()).filter(Boolean);
-    if (dests.length === 0) return setError("Please add at least one destination.");
+    const dests = destinations
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (dests.length === 0)
+      return setError("Please add at least one destination.");
 
     const payload: ItineraryFormData = {
       title: title.trim(),
@@ -239,7 +320,9 @@ export default function HomePage() {
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to create itinerary");
+      setError(
+        err instanceof Error ? err.message : "Failed to create itinerary"
+      );
     } finally {
       setLoading(false);
     }
@@ -256,14 +339,22 @@ export default function HomePage() {
     setError("");
     setLoading(false);
     const el = document.querySelector("aside");
-    if (el) (el as HTMLElement).scrollIntoView({ behavior: "smooth", block: "start" });
+    if (el)
+      (el as HTMLElement).scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
   }
-
 
   const computedTotalCost = useMemo(() => {
     if (!itinerary?.days?.length) return 0;
     return itinerary.days.reduce(
-      (sum, d) => sum + d.activities.reduce((s, a) => s + (typeof a.cost === "number" ? a.cost : 0), 0),
+      (sum, d) =>
+        sum +
+        d.activities.reduce(
+          (s, a) => s + (typeof a.cost === "number" ? a.cost : 0),
+          0
+        ),
       0
     );
   }, [itinerary]);
@@ -295,7 +386,9 @@ export default function HomePage() {
           {/* Form card */}
           <aside className="col-span-1 rounded-3xl p-6 shadow-md bg-white text-gray-900 dark:bg-neutral-900 dark:text-neutral-100 dark:border dark:border-neutral-800">
             <h2 className="text-lg font-semibold">Create your itinerary</h2>
-            <p className="mt-1 text-sm text-gray-700 dark:text-neutral-400">Enter basics and get a day-by-day plan.</p>
+            <p className="mt-1 text-sm text-gray-700 dark:text-neutral-400">
+              Enter basics and get a day-by-day plan.
+            </p>
 
             <form onSubmit={onSubmit} className="mt-4 space-y-3">
               <input
@@ -343,7 +436,11 @@ export default function HomePage() {
                   type="number"
                   placeholder="Daily budget (optional)"
                   value={dailyBudget ?? ""}
-                  onChange={(e) => setDailyBudget(e.target.value ? Number(e.target.value) : undefined)}
+                  onChange={(e) =>
+                    setDailyBudget(
+                      e.target.value ? Number(e.target.value) : undefined
+                    )
+                  }
                 />
               </div>
 
@@ -364,7 +461,11 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {error && <div className="mt-2 rounded-md bg-red-50 p-2 text-sm text-red-700">{error}</div>}
+              {error && (
+                <div className="mt-2 rounded-md bg-red-50 p-2 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
             </form>
           </aside>
 
@@ -390,7 +491,9 @@ export default function HomePage() {
                 <div className="rounded-3xl bg-white p-6 shadow dark:bg-neutral-900 dark:border dark:border-neutral-800">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-neutral-100">{itinerary.title}</h2>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-neutral-100">
+                        {itinerary.title}
+                      </h2>
                       {itinerary.summary && (
                         <p className="mt-2 max-w-prose text-sm text-gray-700 dark:text-neutral-400">
                           {itinerary.summary}
@@ -434,11 +537,14 @@ export default function HomePage() {
                           <div className="rounded-md bg-indigo-50 px-3 py-2 text-indigo-700">
                             <div className="text-sm font-semibold">
                               {day.date
-                                ? new Date(day.date).toLocaleDateString(undefined, {
-                                    weekday: "short",
-                                    month: "short",
-                                    day: "numeric",
-                                  })
+                                ? new Date(day.date).toLocaleDateString(
+                                    undefined,
+                                    {
+                                      weekday: "short",
+                                      month: "short",
+                                      day: "numeric",
+                                    }
+                                  )
                                 : "Date"}
                             </div>
                           </div>
@@ -446,11 +552,15 @@ export default function HomePage() {
                             <div className="text-sm font-medium text-gray-900 dark:text-neutral-100">
                               {day.destination || "Destination"}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-neutral-400">Day {i + 1}</div>
+                            <div className="text-xs text-gray-500 dark:text-neutral-400">
+                              Day {i + 1}
+                            </div>
                           </div>
                         </div>
 
-                        <div className="text-sm text-gray-700 dark:text-neutral-400">{formatDayCostINR(day)}</div>
+                        <div className="text-sm text-gray-700 dark:text-neutral-400">
+                          {formatDayCostINR(day)}
+                        </div>
                       </div>
 
                       <ul className="mt-4 space-y-3">
@@ -464,7 +574,9 @@ export default function HomePage() {
                                     {a.time}
                                   </span>
                                 )}
-                                <div className="font-medium text-gray-900 dark:text-neutral-100">{a.title}</div>
+                                <div className="font-medium text-gray-900 dark:text-neutral-100">
+                                  {a.title}
+                                </div>
                                 {typeof a.cost === "number" && (
                                   <div className="ml-auto text-xs text-gray-700 dark:text-neutral-400">
                                     {inrFormatter.format(a.cost)}
@@ -472,7 +584,9 @@ export default function HomePage() {
                                 )}
                               </div>
                               {a.notes && (
-                                <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">{a.notes}</p>
+                                <p className="mt-1 text-sm text-gray-700 dark:text-neutral-300">
+                                  {a.notes}
+                                </p>
                               )}
                             </div>
                           </li>
@@ -485,7 +599,9 @@ export default function HomePage() {
                 {/* Tips */}
                 {itinerary.tips && itinerary.tips.length > 0 && (
                   <div className="rounded-2xl bg-white p-4 shadow-sm dark:bg-neutral-900 dark:border dark:border-neutral-800">
-                    <h4 className="mb-2 text-base font-semibold text-gray-900 dark:text-neutral-100">Tips</h4>
+                    <h4 className="mb-2 text-base font-semibold text-gray-900 dark:text-neutral-100">
+                      Tips
+                    </h4>
                     <ul className="list-disc space-y-1 pl-5 text-sm text-gray-700 dark:text-neutral-300">
                       {itinerary.tips.map((tip, j) => (
                         <li key={j}>{tip}</li>
@@ -504,7 +620,10 @@ export default function HomePage() {
 
 /* ---------- helpers ---------- */
 function formatDayCostINR(day: Day) {
-  const total = day.activities.reduce((s, a) => s + (typeof a.cost === "number" ? a.cost : 0), 0);
+  const total = day.activities.reduce(
+    (s, a) => s + (typeof a.cost === "number" ? a.cost : 0),
+    0
+  );
   if (total === 0) return "";
   try {
     return new Intl.NumberFormat("en-IN", {
